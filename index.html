@@ -152,6 +152,10 @@ label.campo{display:block;font-size:.8rem;font-weight:700;margin:10px 0 4px}
 .persona button.sec{background:none;color:var(--tinta)}
 #nav button{max-width:200px}
 .grande.sec{background:none;color:var(--tinta);border:1.5px solid var(--tinta)}
+
+.bienvenida{text-align:center;padding:18px 0 14px}
+.bienvenida img{border-radius:22px;display:block;margin:0 auto 6px}
+.bienvenida h1{font-size:2rem}
 </style>
 </head>
 <body>
@@ -416,7 +420,7 @@ var S = (function () {
 })();
 var V = { vista: 'inicio', d: null, ro: false, de: '', sucio: false, hoja: null, ocupado: false };
 var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran' };
-var CF = { email: '', pass: '', nombre: '', cod: '' };
+var CF = { email: '', pass: '', nombre: '', cod: '', modo: 'entrar', aviso: '' };
 var $ = function (id) { return document.getElementById(id); };
 
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(S)); } catch (e) { toast('No queda espacio para guardar en este dispositivo'); } }
@@ -449,7 +453,7 @@ function ponerSesion(j) {
   S.ses = { access_token: j.access_token, refresh_token: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, uid: j.user.id, email: j.user.email };
   guardar();
 }
-function quitarSesion() { CF = { email: '', pass: '', nombre: '', cod: '' }; S.ses = null; S.cache = { disenos: S.cache.disenos.filter(function (d) { return d.publico; }), perfiles: [], amistades: [], compartidos: [] }; guardar(); }
+function quitarSesion() { CF = { email: '', pass: '', nombre: '', cod: '', modo: 'entrar', aviso: '' }; V.vista = 'inicio'; V.d = null; S.ses = null; S.cache = { disenos: S.cache.disenos.filter(function (d) { return d.publico; }), perfiles: [], amistades: [], compartidos: [] }; guardar(); }
 async function tok() {
   if (!S.ses) return null;
   if (Date.now() > S.ses.exp - 60000) {
@@ -597,7 +601,6 @@ function vistaInicio() {
     '<button class="tarjeta nueva" data-act="nuevo"><span>+</span>Nuevo diseño</button></div>';
   if (c.length) h += '<h2>Compartidos conmigo</h2><div class="rejilla">' + c.map(function (d) { return tarjeta(d, 'De ' + nombreDe(d.owner)); }).join('') + '</div>';
   if (p.length) h += '<h2>Biblioteca</h2><div class="rejilla">' + p.map(function (d) { return tarjeta(d, d.vueltas.length + ' vueltas'); }).join('') + '</div>';
-  if (NUBE && !S.ses) h += '<p class="nota" style="margin-top:14px">Sin cuenta, tus diseños se guardan solo en este dispositivo. <button class="lnk" data-act="perfil">Entra o crea una cuenta</button> para tenerlos en la nube y compartirlos con amigas.</p>';
   return h;
 }
 function visor() {
@@ -627,6 +630,17 @@ function formAcceso() {
     '<h2>¿Aún no tienes cuenta?</h2><label class="campo" for="nm">Tu nombre (así te verán tus amigas)</label><input type="text" id="nm" data-campo="nombreu" maxlength="40" autocomplete="nickname" value="' + esc(CF.nombre) + '">' +
     '<button class="grande sec" data-act="crearcuenta"' + (V.ocupado ? ' disabled' : '') + '>Crear cuenta con ese correo y contraseña</button></div>';
 }
+function vistaBienvenida() {
+  var alta = CF.modo === 'alta';
+  return '<div class="bienvenida"><img src="icon-192.png" alt="" width="88" height="88"><h1>Grannys</h1><p class="nota">Diseña tus grannys vuelta a vuelta, pruébales colores y compártelos con tus amigas.</p></div>' +
+    '<div class="seg" role="group" aria-label="Entrar o crear cuenta"><button data-act="modoacceso" data-t="entrar" aria-pressed="' + !alta + '">Ya tengo cuenta</button><button data-act="modoacceso" data-t="alta" aria-pressed="' + alta + '">Crear cuenta</button></div>' +
+    '<div class="bloque" style="margin-top:12px">' +
+    (alta ? '<label class="campo" for="nm">Tu nombre (así te verán tus amigas)</label><input type="text" id="nm" data-campo="nombreu" maxlength="40" autocomplete="nickname" value="' + esc(CF.nombre) + '">' : '') +
+    '<label class="campo" for="em">Correo</label><input type="email" id="em" data-campo="email" autocomplete="email" autocapitalize="off" value="' + esc(CF.email) + '">' +
+    '<label class="campo" for="pw">Contraseña' + (alta ? ' (6 caracteres o más)' : '') + '</label><input type="password" id="pw" data-campo="pass" autocomplete="' + (alta ? 'new-password' : 'current-password') + '" value="' + esc(CF.pass) + '">' +
+    '<button class="grande" data-act="' + (alta ? 'crearcuenta' : 'entrar') + '"' + (V.ocupado ? ' disabled' : '') + '>' + (V.ocupado ? 'Un momento…' : (alta ? 'Crear mi cuenta' : 'Entrar')) + '</button>' +
+    (CF.aviso ? '<p class="aviso">' + esc(CF.aviso) + '</p>' : '') + '</div>';
+}
 function vistaAmigas() {
   var h = '<h1>Amigas</h1>';
   if (!NUBE) return h + '<div class="bloque"><p>La nube todavía no está conectada.</p></div>';
@@ -649,6 +663,7 @@ function vistaPerfil() {
     '<button class="grande sec" data-act="salir">Cerrar sesión</button><button class="grande rojo" data-act="pedirborrarcuenta">Eliminar mi cuenta</button></div>';
 }
 function render() {
+  if (NUBE && !S.ses) { $('app').innerHTML = vistaBienvenida(); $('nav').hidden = true; return; }
   var h = V.vista === 'diseno' ? vistaDiseno() : V.vista === 'amigas' ? vistaAmigas() : V.vista === 'perfil' ? vistaPerfil() : vistaInicio();
   $('app').innerHTML = h;
   $('nav').hidden = V.vista === 'diseno';
@@ -675,6 +690,7 @@ function hojaCompartir() {
 var ACT = {
   inicio: function () { ir('inicio'); cargarNube(); }, amigas: function () { ir('amigas'); cargarNube(); }, perfil: function () { CF.nombre = ''; ir('perfil'); },
   cerrar: cerrar,
+  modoacceso: function (d) { CF.modo = d.t === 'alta' ? 'alta' : 'entrar'; CF.aviso = ''; render(); },
   nuevo: function () { abrirEditor({ id: null, nombre: '', vueltas: [], publico: false }, false); },
   abrir: function (d) {
     var x = buscar(d.id); if (!x) return;
@@ -785,8 +801,8 @@ async function acceso(alta) {
     var r = await fetch(SUPA_URL + '/auth/v1/' + (alta ? 'signup' : 'token?grant_type=password'), { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
     var j = await r.json().catch(function () { return {}; });
     if (!r.ok) throw new Error(j.msg || j.error_description || j.message || ('Error ' + r.status));
-    if (j.access_token) { ponerSesion(j); CF.pass = ''; CF.nombre = ''; await trasEntrar(); toast('Sesión iniciada'); }
-    else toast('Cuenta creada. Confirma el correo que te ha llegado y luego pulsa Entrar');
+    if (j.access_token) { ponerSesion(j); CF.pass = ''; CF.nombre = ''; CF.aviso = ''; V.vista = 'inicio'; V.d = null; await trasEntrar(); toast('Sesión iniciada'); }
+    else { CF.modo = 'entrar'; CF.pass = ''; CF.aviso = 'Cuenta creada. Te hemos enviado un correo: pulsa el enlace para confirmarla y entrarás directamente.'; }
   } catch (err) {
     var m = errTxt(err);
     toast(/invalid login/i.test(m) ? 'Correo o contraseña incorrectos' : /not confirmed/i.test(m) ? 'Antes tienes que confirmar el correo que te enviamos' : /already registered/i.test(m) ? 'Ya hay una cuenta con ese correo' : m);
@@ -806,7 +822,7 @@ async function sesionDeEnlace() {
   try {
     var r = await fetch(SUPA_URL + '/auth/v1/user', { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + at } });
     if (!r.ok) return; var u = await r.json(); if (!u || !u.id) return;
-    ponerSesion({ access_token: at, refresh_token: rt, expires_in: +p.get('expires_in') || 3600, user: u }); await trasEntrar(); toast('Cuenta confirmada. Ya has entrado.');
+    ponerSesion({ access_token: at, refresh_token: rt, expires_in: +p.get('expires_in') || 3600, user: u }); V.vista = 'inicio'; await trasEntrar(); render(); toast('Cuenta confirmada. Ya has entrado.');
   } catch (e) {}
 }
 
