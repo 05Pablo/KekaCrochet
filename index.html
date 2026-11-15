@@ -96,69 +96,131 @@ input[type=file]{max-width:100%;font-size:.86rem;margin-top:6px}
 #nav button[aria-current=page]{color:var(--acento)}
 #toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--tinta);color:var(--fondo);padding:10px 16px;border-radius:12px;font-size:.9rem;z-index:20;max-width:88vw;text-align:center}
 #toast[hidden]{display:none}
+.seg{display:flex;background:var(--borde);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:9px;padding:9px 6px;font-size:.88rem;font-weight:700;color:var(--suave)}
+.seg button[aria-pressed=true]{background:var(--tarjeta);color:var(--tinta);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.visor{position:sticky;top:0;z-index:2;background:var(--fondo);padding:8px 0}
+#lienzo{background:var(--tarjeta);border:1px solid var(--borde);border-radius:18px;padding:8px;line-height:0;width:min(100%,40vh);margin:0 auto 8px}
+#lienzo svg{display:block;width:100%;height:auto}
+#lienzo .pt{cursor:pointer}
+#lienzo .selx{filter:drop-shadow(0 0 1.5px #000) drop-shadow(0 0 3px rgba(200,85,61,.9))}
+.visor .seg{max-width:260px;margin:0 auto}
+.visor .seg button{padding:6px}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 4px;align-items:center}
+.chips button{flex:none;min-width:42px;font-size:.88rem;font-weight:700;background:var(--tarjeta);border:1.5px solid var(--borde);border-radius:999px;padding:8px 13px;white-space:nowrap}
+.chips button[aria-pressed=true]{background:var(--tinta);color:var(--fondo);border-color:var(--tinta)}
+.chips button.mas{border-style:dashed;border-color:var(--tinta)}
+.tarj{background:var(--tarjeta);border:1.5px solid var(--borde);border-radius:16px;padding:12px}
+.tarj h3{margin:0 0 2px;font:italic 1.2rem Georgia,serif}
+.blo{border:1.5px solid var(--borde);border-radius:12px;margin-top:8px;background:#fff}
+.blo.sel{border-color:var(--acento)}
+.blo .fila{display:flex;align-items:center;gap:6px;padding:6px}
+.paso{width:38px;height:38px;border-radius:10px;border:1.5px solid var(--borde);background:var(--tarjeta);font-size:1.2rem;font-weight:700;flex:none;padding:0}
+.num{width:54px;height:38px;text-align:center;font:inherit;font-size:16px;font-weight:700;border:1.5px solid var(--borde);border-radius:10px;background:#fff;color:var(--tinta);flex:none;padding:0}
+.blo .que{flex:1;min-width:0;display:flex;align-items:center;gap:4px;background:none;border:0;text-align:left;font-size:.9rem;font-weight:600;padding:4px 2px}
+.blo .que svg{flex:none}
+.blo .ops{padding:2px 8px 10px;display:grid;gap:8px}
+.marca{display:flex;gap:8px;align-items:center;font-size:.86rem}
+.marca input{width:20px;height:20px;margin:0;flex:none}
+.mini{display:flex;gap:6px}
+.mini button{flex:1;font-size:.8rem;font-weight:600;background:none;border:1.5px solid var(--borde);border-radius:999px;padding:7px 4px}
+.puntos{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.puntos button{background:#fff;border:1.5px solid var(--borde);border-radius:12px;padding:4px 2px 6px;font-size:.72rem;font-weight:600;display:flex;flex-direction:column;align-items:center;line-height:1.15}
+.rep{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.9rem;font-weight:600;flex-wrap:wrap}
+.resumen{background:var(--fondo);border-radius:10px;padding:8px 10px;font-size:.88rem;margin-top:10px}
+.grande{display:block;width:100%;margin-top:12px;font-size:1rem;font-weight:700;background:var(--acento);color:#fff;border:0;border-radius:14px;padding:14px}
+.enl{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.enl button{background:none;border:0;padding:4px 0;font-size:.86rem;font-weight:700;color:var(--acento);text-decoration:underline}
+.paleta{display:grid;grid-template-columns:repeat(9,1fr);gap:6px}
+.paleta button{aspect-ratio:1;border-radius:50%;border:1px solid rgba(0,0,0,.2);padding:0}
+.paleta button[aria-pressed=true]{outline:3px solid var(--acento);outline-offset:2px}
+.hex{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;font-size:.88rem;font-weight:600}
+.hex input[type=text]{width:108px;font:inherit;font-size:16px;padding:8px;border:1.5px solid var(--borde);border-radius:10px;background:#fff;color:var(--tinta)}
+.hex input[type=color]{width:42px;height:38px;padding:0;border:1.5px solid var(--borde);border-radius:10px;background:none}
+.hex button{font-size:.86rem;font-weight:700;background:var(--tinta);color:var(--fondo);border:0;border-radius:999px;padding:9px 14px}
+.sel-txt{font-weight:700;margin:8px 0 2px}
+
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--acento);font-weight:700;text-decoration:underline}
+.lin{font-size:.88rem;margin:0 0 6px}
+label.campo{display:block;font-size:.8rem;font-weight:700;margin:10px 0 4px}
+.codigo{display:flex;gap:8px;align-items:center}
+.codigo span{flex:1;font:700 1.4rem ui-monospace,Menlo,monospace;letter-spacing:.14em;background:#fff;border:1.5px solid var(--borde);border-radius:10px;padding:8px 12px;text-align:center}
+.codigo input{flex:1;min-width:0}
+.codigo button,.persona button{flex:none;font-size:.86rem;font-weight:700;background:var(--tinta);color:var(--fondo);border:1.5px solid var(--tinta);border-radius:999px;padding:9px 14px}
+.persona{display:flex;align-items:center;gap:8px;background:var(--tarjeta);border:1.5px solid var(--borde);border-radius:12px;padding:8px 8px 8px 14px;margin-bottom:8px}
+.persona span{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.persona button.sec{background:none;color:var(--tinta)}
+#nav button{max-width:200px}
+.grande.sec{background:none;color:var(--tinta);border:1.5px solid var(--tinta)}
 </style>
 </head>
 <body>
 <main id="app"></main>
-<nav id="nav" aria-label="Secciones"><button id="nb" data-act="inicio">Biblioteca</button><button id="np" data-act="perfil">Perfil</button></nav>
+<nav id="nav" aria-label="Secciones"><button id="nb" data-act="inicio">Diseños</button><button id="na" data-act="amigas">Amigas</button><button id="np" data-act="perfil">Perfil</button></nav>
 <div id="velo" hidden><div id="hoja" role="dialog" aria-modal="true" aria-labelledby="htit">
   <div class="barra"><strong id="htit"></strong><button data-act="cerrar">Cerrar</button></div><div id="cuerpo"></div></div></div>
 <div id="toast" role="status" hidden></div>
 <script>
-// ====== CONEXIÓN CON SUPABASE ======
-// Pega aquí la "Project URL" y la clave "anon / publishable" (NUNCA la service_role).
-// Si se dejan vacías, la app funciona igual pero todo se guarda solo en el dispositivo.
+// ====== CONEXIÓN CON SUPABASE (clave pública; nunca la service_role) ======
 var SUPA_URL = 'https://vclwceetlfvyjiarvqvy.supabase.co';
 var SUPA_KEY = 'sb_publishable_DQGH3cnjbCmQ-Uq-yulIAg_07do4Q94';
-// ===================================
-// Motor: a partir de una lista de TIPOS de vuelta calcula los puntos y dibuja el granny tejido.
-var PESO = { pa: 1, pma: 1, pb: 0.9, ch: 0.8, sp: 0.55 };
-function rep(arr, n) { var o = []; for (var i = 0; i < n; i++) o = o.concat(arr); return o; }
-
-var TIPOS = [
-  { id: 'pa', nombre: 'Puntos altos', desc: 'Todos seguidos, uno al lado de otro', h: 0.75, ic: ['pa', 'pa', 'pa', 'pa', 'pa'] },
-  { id: 'pa_ch', nombre: 'Punto alto + cadeneta', desc: 'Un punto alto, una cadeneta, y se repite', h: 0.75, ic: ['pa', 'ch', 'pa', 'ch', 'pa'] },
-  { id: 'pa2_ch', nombre: '2 puntos altos + cadeneta', desc: 'Parejas de puntos altos separadas por una cadeneta', h: 0.75, ic: ['pa', 'pa', 'ch', 'pa', 'pa'] },
-  { id: 'g3', nombre: 'Grupos de 3 puntos altos', desc: 'Grupitos de 3 con un hueco entre ellos', h: 0.8, ic: ['pa', 'pa', 'pa', 'sp', 'pa', 'pa', 'pa'] },
-  { id: 'cuadrar', nombre: 'Cuadrar el círculo', desc: 'La vuelta que saca las cuatro esquinas', h: 0.85, cuadra: true },
-  { id: 'clasico', nombre: 'Granny clásico', desc: 'Grupos de 3 con cadenetas en las esquinas', h: 0.8, cuadra: true, ic: ['ch', 'pa', 'pa', 'pa', 'ch'] },
-  { id: 'arcos', nombre: 'Arcos de cadenetas', desc: 'Punto bajo y un arco de 3 cadenetas', h: 0.55, ic: ['pb', 'ch', 'ch', 'ch', 'pb'] },
-  { id: 'pma', nombre: 'Medios altos', desc: 'Vuelta más bajita, típica de borde', h: 0.6, ic: ['pma', 'pma', 'pma', 'pma', 'pma'] },
-  { id: 'pb', nombre: 'Puntos bajos', desc: 'El borde más fino', h: 0.4, ic: ['pb', 'pb', 'pb', 'pb', 'pb'] }
+// =========================================================================
+// Motor del asistente: cada vuelta es una serie de CONJUNTOS ("15 puntos altos") que se reparte sola.
+var PUNTOS = [
+  { id: 'ch', nombre: 'Cadeneta', ab: 'cad', w: 0.8, alt: 0.3 },
+  { id: 'pr', nombre: 'Punto raso', ab: 'pr', w: 0.5, alt: 0.2 },
+  { id: 'pb', nombre: 'Punto bajo', ab: 'pb', w: 0.9, alt: 0.42 },
+  { id: 'pma', nombre: 'Medio alto', ab: 'pma', w: 1, alt: 0.62 },
+  { id: 'pa', nombre: 'Punto alto', ab: 'pa', w: 1, alt: 0.82 },
+  { id: 'pad', nombre: 'Alto doble', ab: 'pad', w: 1, alt: 1.1 },
+  { id: 'pina', nombre: 'Piña o puff', ab: 'piña', w: 1.3, alt: 0.82 },
+  { id: 'pop', nombre: 'Popcorn', ab: 'pop', w: 1.4, alt: 0.82 },
+  { id: 'pat', nombre: 'Alto triple', ab: 'pat', w: 1, alt: 1.38 },
+  { id: 'v', nombre: 'Punto en V', ab: 'V', w: 1.9, alt: 0.82 },
+  { id: 'pic', nombre: 'Piquito', ab: 'piq', w: 0.8, alt: 0.36 },
+  { id: 'prd', nombre: 'Relieve delante', ab: 'pa relieve del.', w: 1, alt: 0.82 },
+  { id: 'prt', nombre: 'Relieve detrás', ab: 'pa relieve det.', w: 1, alt: 0.82 },
+  { id: 'pbt', nombre: 'Bajo hebra atrás', ab: 'pb hebra atrás', w: 0.9, alt: 0.42 },
+  { id: 'cang', nombre: 'Cangrejo', ab: 'cangrejo', w: 0.9, alt: 0.42 }
 ];
-var TIPO = {}; TIPOS.forEach(function (t) { TIPO[t.id] = t; });
+var PT = {}; PUNTOS.forEach(function (p) { PT[p.id] = p; });
+var E = 40;
 
-// De la lista de tipos saca la geometría: la app decide cuántos puntos caben, los aumentos y las esquinas.
-function generar(ids) {
+function pos(r, c, s) {
+  s = ((s % 4) + 4) % 4;
+  var q = Math.floor(s), t = (s - q) * 2 - 1, a = t * Math.PI / 4;
+  var x = r * Math.cos(a) * (1 - c) + r * c, y = r * Math.sin(a) * (1 - c) + r * t * c;
+  var g = q * Math.PI / 2 - Math.PI / 2, cs = Math.cos(g), sn = Math.sin(g);
+  return [x * cs - y * sn, x * sn + y * cs];
+}
+function colorDe(v, b, k) { return (v.puntos && v.puntos[k]) || b.color || v.color; }
+
+// Reparte los puntos de cada vuelta: devuelve, por vuelta, la lista de puntos con su sitio y su color
+function calcular(vs) {
   var r = 0.3, c = 0, out = [];
-  ids.forEach(function (id) {
-    var T = TIPO[id], r1 = r + T.h, c1;
-    if (T.cuadra && c < 0.5) c1 = id === 'clasico' ? 0.9 : 0.86;
-    else c1 = c > 0 ? Math.min(0.96, c + (1 - c) * 0.45) : 0;
-    var largo = (Math.PI / 2 * r1) * (1 - c1) + 2 * r1 * c1, u = largo / 0.4;
-    var esq = c1 > 0.5, disp = u - (esq ? 1.6 : 0), lado, k;
-    function reps(unidad) {
-      var w = unidad.reduce(function (s, x) { return s + PESO[x]; }, 0);
-      return rep(unidad, Math.max(1, Math.round(disp / w)));
+  vs.forEach(function (v) {
+    var H = 0.3; v.bloques.forEach(function (b) { H = Math.max(H, PT[b.p].alt); });
+    var r1 = r + H, c1 = v.forma === 'c' ? 0.9 : 0, rep = Math.max(1, v.rep | 0);
+    var wb = v.bloques.map(function (b) { return b.junto ? Math.max(PT[b.p].w, b.n * PT[b.p].w * 0.72) : b.n * PT[b.p].w; });
+    var Wseq = wb.reduce(function (s, x) { return s + x; }, 0), W = Wseq * rep, shift = 0, acc0 = 0;
+    if (v.forma === 'c') for (var i = 0; i < v.bloques.length; i++) { if (v.bloques[i].esq) { shift = acc0 + wb[i] / 2; break; } acc0 += wb[i]; }
+    var items = [], k = 0;
+    if (W > 0) for (var rp = 0; rp < rep; rp++) {
+      var acc = rp * Wseq;
+      v.bloques.forEach(function (b, bi) {
+        var cen = acc + wb[bi] / 2, cada = wb[bi] / b.n;
+        for (var j = 0; j < b.n; j++) {
+          var s = ((acc + (j + 0.5) * cada - shift) / W) * 4, sb = b.junto ? ((cen - shift) / W) * 4 : s;
+          var B = pos(r, c, sb), TL = pos(r1 - 0.08, c1, s), T2 = pos(r1 - 0.08, c1, s + 0.01), f = Math.min(1, PT[b.p].alt / H);
+          items.push({ k: k, b: bi, p: b.p, B: B, TL: TL, T: [B[0] + (TL[0] - B[0]) * f, B[1] + (TL[1] - B[1]) * f],
+            ang: Math.atan2(T2[1] - TL[1], T2[0] - TL[0]) * 180 / Math.PI, col: colorDe(v, b, k) });
+          k++;
+        }
+        acc += wb[bi];
+      });
     }
-    if (id === 'cuadrar' && c < 0.5) {
-      k = Math.max(1, Math.round((u - 5.2) / 3.2));
-      lado = ['ch', 'pa'];
-      for (var j = 0; j < k; j++) lado.push('ch', 'ch', 'pma');
-      lado.push('ch', 'ch', 'pa', 'ch');
-    } else {
-      if (id === 'pa' || id === 'pma' || id === 'pb') lado = reps([id]);
-      else if (id === 'pa_ch') lado = reps(['pa', 'ch']);
-      else if (id === 'pa2_ch') lado = reps(['pa', 'pa', 'ch']);
-      else if (id === 'arcos' || id === 'cuadrar') lado = reps(['pb', 'ch', 'ch', 'ch']);
-      else {
-        k = Math.max(1, Math.round((disp + 0.55) / 3.55)); lado = [];
-        for (var g = 0; g < k; g++) { if (g) lado.push('sp'); lado.push('pa', 'pa', 'pa'); }
-      }
-      if (esq) lado = ['ch'].concat(lado, ['ch']);
-    }
-    var puntos = lado.filter(function (x) { return x !== 'sp'; }).length * 4;
-    out.push({ r0: r, r1: r1, c0: c, c1: c1, lado: lado, puntos: puntos });
+    var per = (2 * Math.PI * r1) * (1 - c1) + 8 * r1 * c1;
+    out.push({ r0: r, r1: r1, c1: c1, items: items, paso: W ? per / W : 1 });
     r = r1; c = c1;
   });
   return out;
@@ -169,83 +231,119 @@ function sombra(hex, f) {
   function m(x) { return Math.round(f < 0 ? x * (1 + f) : x + (255 - x) * f); }
   return 'rgb(' + m(r) + ',' + m(g) + ',' + m(b) + ')';
 }
-
-function P(r, c, q, t) {
-  var a = t * Math.PI / 4;
-  var x = r * Math.cos(a) * (1 - c) + r * c, y = r * Math.sin(a) * (1 - c) + r * t * c;
-  var g = q * Math.PI / 2, cs = Math.cos(g), sn = Math.sin(g);
-  return [x * cs - y * sn, x * sn + y * cs];
+function F(v) { return (v * E).toFixed(1); }
+function geo(it) {
+  var dx = it.T[0] - it.B[0], dy = it.T[1] - it.B[1], L = Math.sqrt(dx * dx + dy * dy) || 0.001;
+  return { dx: dx / L, dy: dy / L, nx: -dy / L, ny: dx / L, L: L, M: [(it.B[0] + it.T[0]) / 2, (it.B[1] + it.T[1]) / 2] };
 }
+function lin(a, b) { return 'M' + F(a[0]) + ' ' + F(a[1]) + 'L' + F(b[0]) + ' ' + F(b[1]); }
+function mas(p, ux, uy, d) { return [p[0] + ux * d, p[1] + uy * d]; }
 
-function dibujarGranny(vueltas, colores) {
-  var E = 40, f = function (v) { return (v * E).toFixed(1); };
-  var rMax = vueltas.length ? vueltas[vueltas.length - 1].r1 : 0;
-  var R = Math.round(Math.max(rMax, 2.6) * E + 12);
-  var cab = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + (-R) + ' ' + (-R) + ' ' + (2 * R) + ' ' + (2 * R) + '" role="img" aria-label="Vista previa del granny tejido">';
-  if (!vueltas.length) {
-    return cab + '<circle r="13" fill="none" stroke="#b9a996" stroke-width="3" stroke-dasharray="5 5"/>' +
-      '<text y="44" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#8a7a70">Aquí aparecerá tu granny</text></svg>';
+// Símbolo de esquema de un punto
+function simbolo(it, paso) {
+  var g = geo(it), B = it.B, T = it.T, d = '', extra = '', h = 0.11;
+  if (it.p === 'ch') return '<ellipse transform="translate(' + F(it.TL[0]) + ' ' + F(it.TL[1]) + ') rotate(' + it.ang.toFixed(1) + ')" rx="' + Math.min(paso * 0.8 * 0.42 * E, 7).toFixed(1) + '" ry="3"/>';
+  if (it.p === 'pr') { var c = mas(B, g.dx, g.dy, 0.1); return '<circle cx="' + F(c[0]) + '" cy="' + F(c[1]) + '" r="3" fill="currentColor"/>'; }
+  var cruz = lin(mas(g.M, g.dx, g.dy, -h), mas(g.M, g.dx, g.dy, h)) + lin(mas(g.M, g.nx, g.ny, -h), mas(g.M, g.nx, g.ny, h));
+  if (it.p === 'pb') return '<path d="' + cruz + '"/>';
+  function arco(p, q, r2) { return 'M' + F(p[0]) + ' ' + F(p[1]) + 'Q' + F(r2[0]) + ' ' + F(r2[1]) + ' ' + F(q[0]) + ' ' + F(q[1]); }
+  if (it.p === 'pbt') { var p1 = mas(mas(g.M, g.dx, g.dy, -0.17), g.nx, g.ny, -0.1), p2 = mas(mas(g.M, g.dx, g.dy, -0.17), g.nx, g.ny, 0.1); return '<path d="' + cruz + arco(p1, p2, mas(g.M, g.dx, g.dy, -0.27)) + '"/>'; }
+  if (it.p === 'cang') {
+    var x1 = mas(mas(g.M, g.dx, g.dy, -0.09), g.nx, g.ny, -0.09), x2 = mas(mas(g.M, g.dx, g.dy, 0.09), g.nx, g.ny, 0.09), x3 = mas(mas(g.M, g.dx, g.dy, -0.09), g.nx, g.ny, 0.09), x4 = mas(mas(g.M, g.dx, g.dy, 0.09), g.nx, g.ny, -0.09);
+    return '<path d="' + lin(x1, x2) + lin(x3, x4) + arco(mas(x4, g.dx, g.dy, 0.07), mas(x2, g.dx, g.dy, 0.07), mas(g.M, g.dx, g.dy, 0.26)) + '"/>';
   }
-  var out = [];
-  vueltas.forEach(function (v, i) {
-    var col = colores[i], osc = sombra(col, -0.38), cla = sombra(col, 0.22);
-    var total = v.lado.reduce(function (s, k) { return s + PESO[k]; }, 0);
-    var largo = (Math.PI / 2 * v.r1) * (1 - v.c1) + 2 * v.r1 * v.c1;
-    var paso = largo / total, w = Math.min(paso * 0.82, 0.42);
-    var postes = [], cabezas = [];
-    for (var q = 0; q < 4; q++) {
-      var acc = 0;
-      v.lado.forEach(function (k) {
-        var t = ((acc + PESO[k] / 2) / total) * 2 - 1; acc += PESO[k];
-        if (k === 'sp') return;
-        var o = P(v.r1 - 0.1, v.c1, q, t), o2 = P(v.r1 - 0.1, v.c1, q, t + 0.02);
-        var ang = Math.atan2(o2[1] - o[1], o2[0] - o[0]) * 180 / Math.PI;
-        if (k === 'ch') {
-          var cpt = P(v.r1 - 0.14, v.c1, q, t);
-          cabezas.push('<g transform="translate(' + f(cpt[0]) + ',' + f(cpt[1]) + ') rotate(' + ang.toFixed(1) + ')">' +
-            '<ellipse rx="' + f(paso * 0.62) + '" ry="' + f(0.15) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.6"/>' +
-            '<path d="M' + f(-paso * 0.3) + ',0 L' + f(paso * 0.3) + ',0" stroke="' + osc + '" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></g>');
-          return;
-        }
-        var b = P(v.r0 - 0.05, v.c0, q, t), a = P(v.r1 - 0.16, v.c1, q, t);
-        var dx = a[0] - b[0], dy = a[1] - b[1], L = Math.sqrt(dx * dx + dy * dy), nx = -dy / L, ny = dx / L;
-        var d = 'M' + f(b[0]) + ',' + f(b[1]) + ' L' + f(a[0]) + ',' + f(a[1]);
-        var s = '<path d="' + d + '" stroke="' + osc + '" stroke-width="' + f(w * 1.18) + '" stroke-linecap="round"/>' +
-          '<path d="' + d + '" stroke="' + col + '" stroke-width="' + f(w * 0.9) + '" stroke-linecap="round"/>';
-        var n = k === 'pa' ? Math.max(2, Math.round(L / 0.3)) : Math.max(1, Math.round(L / 0.4));
-        for (var j = 1; j <= n; j++) {
-          var uu = j / (n + 1), cx = b[0] + dx * uu, cy = b[1] + dy * uu, h = w * 0.36;
-          var ex = nx * h + dx / L * h * 0.7, ey = ny * h + dy / L * h * 0.7;
-          s += '<path d="M' + f(cx - ex) + ',' + f(cy - ey) + ' L' + f(cx + ex) + ',' + f(cy + ey) + '" stroke="' + (j % 2 ? cla : osc) + '" stroke-width="1.5" stroke-linecap="round" opacity=".75"/>';
-        }
-        postes.push(s);
-        cabezas.push('<g transform="translate(' + f(o[0]) + ',' + f(o[1]) + ') rotate(' + ang.toFixed(1) + ')">' +
-          '<ellipse rx="' + f(Math.max(paso * 0.62, 0.2)) + '" ry="' + f(0.13) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.5"/>' +
-          '<path d="M' + f(-paso * 0.3) + ',0 L' + f(paso * 0.3) + ',0" stroke="' + cla + '" stroke-width="1.3" stroke-linecap="round" opacity=".8"/></g>');
-      });
-    }
-    out.push('<g data-vuelta="' + i + '">' + postes.join('') + cabezas.join('') + '</g>');
-  });
-  return cab + '<g fill="none">' + out.join('') + '</g>' +
-    '<circle r="9" fill="none" stroke="' + sombra(colores[0], -0.38) + '" stroke-width="5"/>' +
-    '<circle r="9" fill="none" stroke="' + colores[0] + '" stroke-width="3"/></svg>';
+  if (it.p === 'pic') { var q1 = mas(mas(B, g.dx, g.dy, 0.36), g.nx, g.ny, 0.2), q2 = mas(mas(B, g.dx, g.dy, 0.36), g.nx, g.ny, -0.2); return '<path d="M' + F(B[0]) + ' ' + F(B[1]) + 'C' + F(q1[0]) + ' ' + F(q1[1]) + ' ' + F(q2[0]) + ' ' + F(q2[1]) + ' ' + F(B[0]) + ' ' + F(B[1]) + '"/>'; }
+  if (it.p === 'v') {
+    var t1 = mas(T, g.nx, g.ny, -0.2), t2 = mas(T, g.nx, g.ny, 0.2), dv = '';
+    [t1, t2].forEach(function (t) { var m = [(B[0] + t[0]) / 2, (B[1] + t[1]) / 2]; dv += lin(B, t) + lin(mas(t, g.nx, g.ny, -0.08), mas(t, g.nx, g.ny, 0.08)) + lin(mas(m, g.nx, g.ny, -0.08), mas(m, g.nx, g.ny, 0.08)); });
+    var ce = mas(T, g.dx, g.dy, 0.03);
+    return '<path d="' + dv + '"/><circle cx="' + F(ce[0]) + '" cy="' + F(ce[1]) + '" r="2.4"/>';
+  }
+  var barra = lin(mas(T, g.nx, g.ny, -h), mas(T, g.nx, g.ny, h));
+  if (it.p === 'pina' || it.p === 'pop') {
+    var a = mas(g.M, g.nx, g.ny, 0.17), b = mas(g.M, g.nx, g.ny, -0.17);
+    d = 'M' + F(B[0]) + ' ' + F(B[1]) + 'Q' + F(a[0]) + ' ' + F(a[1]) + ' ' + F(T[0]) + ' ' + F(T[1]) + 'Q' + F(b[0]) + ' ' + F(b[1]) + ' ' + F(B[0]) + ' ' + F(B[1]) + barra;
+    if (it.p === 'pop') { var o = mas(T, g.dx, g.dy, 0.09); extra = '<circle cx="' + F(o[0]) + '" cy="' + F(o[1]) + '" r="3"/>'; }
+    return '<path d="' + d + '"/>' + extra;
+  }
+  d = lin(B, T) + barra;
+  function raya(u) { var m = [B[0] + (T[0] - B[0]) * u, B[1] + (T[1] - B[1]) * u]; return lin([m[0] - g.nx * 0.1 - g.dx * 0.05, m[1] - g.ny * 0.1 - g.dy * 0.05], [m[0] + g.nx * 0.1 + g.dx * 0.05, m[1] + g.ny * 0.1 + g.dy * 0.05]); }
+  if (it.p === 'pa' || it.p === 'prd' || it.p === 'prt') d += raya(0.5);
+  if (it.p === 'pat') d += raya(0.32) + raya(0.5) + raya(0.68);
+  if (it.p === 'prd' || it.p === 'prt') { var sg = it.p === 'prd' ? 1 : -1, e1 = mas(B, g.nx, g.ny, 0.13 * sg); d += arco(B, mas(e1, g.dx, g.dy, 0.1), mas(e1, g.dx, g.dy, -0.06)); }
+  if (it.p === 'pad') d += raya(0.4) + raya(0.62);
+  return '<path d="' + d + '"/>';
+}
+// El mismo punto, dibujado como hilo tejido
+function tejido(it, paso) {
+  var g = geo(it), col = it.col, osc = sombra(col, -0.38), cla = sombra(col, 0.22), B = it.B, T = it.T;
+  var w = Math.min(paso * 0.82, 0.42), tr = function (p) { return 'translate(' + F(p[0]) + ' ' + F(p[1]) + ') rotate(' + it.ang.toFixed(1) + ')'; };
+  if (it.p === 'ch') return '<g transform="' + tr(it.TL) + '"><ellipse rx="' + F(Math.min(paso * 0.5, 0.3)) + '" ry="' + F(0.14) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.6"/><path d="M' + F(-0.12) + ' 0H' + F(0.12) + '" stroke="' + osc + '" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></g>';
+  if (it.p === 'pr') return '<g transform="' + tr(mas(B, g.dx, g.dy, 0.1)) + '"><ellipse rx="' + F(0.14) + '" ry="' + F(0.08) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.4"/></g>';
+  if (it.p === 'pina' || it.p === 'pop') {
+    var gr = it.p === 'pop' ? 0.3 : 0.24, an = Math.atan2(g.dy, g.dx) * 180 / Math.PI;
+    return '<g transform="translate(' + F(g.M[0]) + ' ' + F(g.M[1]) + ') rotate(' + an.toFixed(1) + ')"><ellipse rx="' + F(g.L / 2) + '" ry="' + F(gr) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="2"/>' +
+      '<path d="M' + F(-g.L * 0.3) + ' ' + F(-gr * 0.4) + 'Q0 ' + F(-gr * 0.75) + ' ' + F(g.L * 0.3) + ' ' + F(-gr * 0.4) + '" stroke="' + cla + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
+      '<path d="M' + F(-g.L * 0.3) + ' ' + F(gr * 0.35) + 'Q0 ' + F(gr * 0.7) + ' ' + F(g.L * 0.3) + ' ' + F(gr * 0.35) + '" stroke="' + osc + '" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>' +
+      (it.p === 'pop' ? '<ellipse rx="' + F(g.L * 0.2) + '" ry="' + F(gr * 0.5) + '" fill="' + cla + '" opacity=".5"/>' : '') + '</g>';
+  }
+  if (it.p === 'pic') { var cp = mas(B, g.dx, g.dy, 0.2); return '<circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.13) + '" fill="none" stroke="' + osc + '" stroke-width="6"/><circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.13) + '" fill="none" stroke="' + col + '" stroke-width="3.6"/>'; }
+  if (it.p === 'v') {
+    var sv = '';
+    [-0.2, 0.2].forEach(function (o) { var tt = mas(T, g.nx, g.ny, o); sv += tejido({ p: 'pa', B: B, T: tt, TL: tt, ang: it.ang, col: col }, paso); });
+    return sv + tejido({ p: 'ch', B: B, T: T, TL: mas(T, g.dx, g.dy, 0.04), ang: it.ang, col: col }, Math.min(paso, 0.4));
+  }
+  if (it.p === 'prd') w *= 1.3; if (it.p === 'prt') w *= 0.8;
+  var tope = mas(T, g.dx, g.dy, -0.06), d = lin(B, tope);
+  var s = '<path d="' + d + '" stroke="' + osc + '" stroke-width="' + F(w * 1.18) + '" stroke-linecap="round"/><path d="' + d + '" stroke="' + col + '" stroke-width="' + F(w * 0.9) + '" stroke-linecap="round"/>';
+  var n = (it.p === 'pb' || it.p === 'pbt' || it.p === 'cang') ? 1 : Math.max(1, Math.round(g.L / (it.p === 'pma' ? 0.4 : 0.3)));
+  for (var j = 1; j <= n; j++) {
+    var u = j / (n + 1), cx = B[0] + (tope[0] - B[0]) * u, cy = B[1] + (tope[1] - B[1]) * u, hh = w * 0.36;
+    var ex = g.nx * hh + g.dx * hh * 0.7, ey = g.ny * hh + g.dy * hh * 0.7;
+    s += '<path d="' + lin([cx - ex, cy - ey], [cx + ex, cy + ey]) + '" stroke="' + (j % 2 ? cla : osc) + '" stroke-width="1.5" stroke-linecap="round" opacity=".75"/>';
+  }
+  var rxh = Math.max(Math.min(paso * 0.6, 0.34), 0.16), cab = '<ellipse rx="' + F(rxh) + '" ry="' + F(it.p === 'cang' ? 0.15 : 0.12) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.5"/>';
+  if (it.p === 'cang') cab += '<path d="M' + F(-rxh * 0.5) + ' ' + F(0.08) + 'L' + F(rxh * 0.1) + ' ' + F(-0.08) + 'M' + F(0) + ' ' + F(0.08) + 'L' + F(rxh * 0.6) + ' ' + F(-0.08) + '" stroke="' + osc + '" stroke-width="1.6" stroke-linecap="round"/>';
+  if (it.p === 'pbt') cab += '<path d="M' + F(-rxh * 0.7) + ' ' + F(0.17) + 'H' + F(rxh * 0.7) + '" stroke="' + cla + '" stroke-width="2" stroke-linecap="round"/>';
+  if (it.p === 'prd') s += '<path d="' + lin(mas(B, g.nx, g.ny, w * 0.5), mas(tope, g.nx, g.ny, w * 0.5)) + '" stroke="' + osc + '" stroke-width="1.6" opacity=".55"/>';
+  return s + '<g transform="' + tr(T) + '">' + cab + '</g>';
 }
 
-// Dibujito del tipo de vuelta con los símbolos de los esquemas
-function icono(id) {
-  var a = '<svg viewBox="0 0 72 30" width="72" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">';
-  if (id === 'cuadrar') return a + '<circle cx="14" cy="15" r="9"/><path d="M30 15h10m-4-4 4 4-4 4"/><rect x="48" y="5" width="20" height="20" rx="2"/></svg>';
-  var ic = TIPO[id].ic, s = '';
-  ic.forEach(function (k, i) {
-    var x = (8 + i * 56 / (ic.length - 1)).toFixed(1);
-    if (k === 'ch') s += '<ellipse cx="' + x + '" cy="8" rx="4.5" ry="2.6"/>';
-    else if (k === 'pb') s += '<path d="M' + x + ' 10v12M' + (x - 4) + ' 16h8"/>';
-    else if (k === 'pma') s += '<path d="M' + x + ' 6v19M' + (x - 4) + ' 6h8"/>';
-    else if (k === 'pa') s += '<path d="M' + x + ' 6v19M' + (x - 4) + ' 6h8M' + (x - 3.5) + ' 17l7-4"/>';
+// sel: {v, b, k} según lo que haya elegido la usuaria (b y k pueden faltar)
+function dibujar(vs, vista, sel) {
+  var cal = calcular(vs), rMax = 0.3, cuad = false;
+  cal.forEach(function (c) { rMax = c.r1; if (c.c1 > 0) cuad = true; });
+  var R = Math.round(Math.max(rMax * (cuad ? 1.3 : 1), 2.4) * E + 16);
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + (-R) + ' ' + (-R) + ' ' + (2 * R) + ' ' + (2 * R) + '" role="img" aria-label="' + (vista === 'tej' ? 'Vista del granny tejido' : 'Esquema del granny con símbolos') + '">';
+  var c0 = vs.length ? vs[0].color : '#b9a996';
+  s += '<circle r="10" fill="none" stroke="' + (vs.length ? sombra(c0, -0.3) : '#b9a996') + '" stroke-width="' + (vista === 'tej' ? 4 : 1.6) + '"' + (vs.length ? '' : ' stroke-dasharray="5 5"') + '/>';
+  if (!vs.length) s += '<text y="40" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#8a7a70">Anillo de inicio</text>';
+  cal.forEach(function (c, vi) {
+    var a = '', b = '';
+    c.items.forEach(function (it) {
+      var es = sel && sel.v === vi && (sel.b == null || sel.b === it.b) && (sel.k == null || sel.k === it.k);
+      var ab = '<g class="pt' + (es ? ' selx' : '') + '" data-v="' + vi + '" data-b="' + it.b + '" data-k="' + it.k + '">' +
+        '<path d="' + lin(it.B, it.TL) + '" stroke="transparent" stroke-width="13" fill="none"/>';
+      if (vista === 'tej') {
+        var t = tejido(it, c.paso);
+        if (it.p === 'ch' || it.p === 'pr') b += ab + t + '</g>'; else a += ab + t + '</g>';
+      } else {
+        var sm = simbolo(it, c.paso);
+        a += ab + '<g fill="none" stroke="#3b2f2a" stroke-opacity=".3" stroke-width="3.4" stroke-linecap="round" style="color:#3b2f2a">' + sm + '</g>' +
+          '<g fill="none" stroke="' + it.col + '" stroke-width="2" stroke-linecap="round" style="color:' + it.col + '">' + sm + '</g></g>';
+      }
+    });
+    s += '<g>' + a + b + '</g>';
   });
-  return a + s + '</svg>';
+  return s + '</svg>';
 }
-
+function iconoPunto(id) {
+  var hh = Math.min(PT[id].alt * 0.62, 0.54), it = { p: id, B: [0.9, 0.68], T: [0.9, 0.68 - hh], TL: [0.9, 0.38], ang: 0, col: '#3b2f2a' };
+  if (id === 'pr') it.B = [0.9, 0.3];
+  if (id === 'pb' || id === 'pbt' || id === 'cang') { it.B = [0.9, 0.6]; it.T = [0.9, 0.2]; }
+  if (id === 'pic') it.B = [0.9, 0.56];
+  return '<svg viewBox="16 0 40 30" width="40" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">' + simbolo(it, 1) + '</svg>';
+}
 // DROPS Safran: número y nombre de la carta oficial; tono aproximado sacado de la captura.
 var SAFRAN = [['Safran 17 · Blanco','#d4d4d6'],
   ['Safran 72 · Tiza','#eae6e2'],
@@ -293,85 +391,65 @@ var SAFRAN = [['Safran 17 · Blanco','#d4d4d6'],
   ['Safran 31 · Verde manzana','#928d46'],
   ['Safran 16 · Negro','#19191b']];
 var NUBE = /^https:\/\/.+/.test(SUPA_URL) && !!SUPA_KEY;
-var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Marfil','#ece2cf'],['Arena','#d9c2a3'],['Beige','#c9ad8a'],['Gris perla','#cfcfd2'],['Gris','#8e9096'],['Gris marengo','#5a5d63'],['Antracita','#3a3c42'],['Negro','#1e1e22'],
-  ['Vainilla','#f6e7a6'],['Limón','#f2dc4e'],['Amarillo','#f5c518'],['Mostaza','#e0a82e'],['Ocre','#c98a1d'],['Melocotón','#f7c59f'],['Albaricoque','#f4a66a'],['Mandarina','#ee8a3c'],['Naranja','#e86a1c'],['Teja','#c5562c'],
-  ['Rosa bebé','#f8d3dc'],['Rosa palo','#e9aeb9'],['Rosa','#e8718d'],['Chicle','#ee5fa0'],['Fucsia','#d6337f'],['Coral','#e8644f'],['Rojo','#d12b2b'],['Cereza','#b01e36'],['Frambuesa','#b8325a'],['Burdeos','#7a1f33'],
-  ['Lavanda','#d5c8ee'],['Lila','#b59ad6'],['Malva','#a77bb5'],['Violeta','#7d4fb0'],['Morado','#5b2e86'],['Ciruela','#7a3b63'],['Berenjena','#452445'],
-  ['Azul bebé','#cfe3f2'],['Celeste','#8fc1de'],['Azul cielo','#5fa8d8'],['Azul','#3f6fb0'],['Cobalto','#2a4fa3'],['Vaquero','#5b7696'],['Marino','#27365c'],['Petróleo','#1f5f6b'],['Turquesa','#2fb5b0'],['Aguamarina','#8fd6cc'],
-  ['Menta','#b9e3cf'],['Verde agua','#7fb7a3'],['Pistacho','#b8cf7a'],['Lima','#a6c636'],['Verde','#4f9e45'],['Salvia','#8a9a6b'],['Oliva','#6f7a35'],['Musgo','#4f6b3a'],['Botella','#2f6b55'],['Verde oscuro','#1f4a36'],
-  ['Camel','#c79a63'],['Caramelo','#b0763a'],['Canela','#9a5a34'],['Topo','#8b7b70'],['Chocolate','#6b4433'],['Café','#4a2f25']];
-var CICLO = ['#c79632', '#c05668', '#e2d8c1', '#678b70', '#3454a2', '#ce6667'];
-var GAMAS_FIJAS = [
-  { id: 'basicos', nombre: 'Colores básicos', colores: BASICOS },
-  { id: 'safran', nombre: 'DROPS Safran', colores: SAFRAN, nota: 'Ordenados por tonos, como en la carta de DROPS. Los colores son aproximados.' }];
-var INCLUIDOS = [
-  { id: 'inc-clasico', nombre: 'Granny clásico', vueltas: ['clasico', 'clasico', 'clasico', 'clasico'], colores: ['#c79632', '#c05668', '#e2d8c1', '#678b70'] },
-  { id: 'inc-circulo', nombre: 'Círculo a cuadrado', vueltas: ['pa', 'pa_ch', 'pa2_ch', 'cuadrar', 'g3', 'pma'], colores: ['#c79632', '#c05668', '#e2d8c1', '#538d9c', '#3454a2', '#ce6667'] },
-  { id: 'inc-flor', nombre: 'Flor en el centro', vueltas: ['pa', 'arcos', 'g3', 'cuadrar', 'pa', 'pb'], colores: ['#c7a45e', '#ab4f90', '#e2bfc9', '#678b70', '#eae6e2', '#678b70'] }];
+var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Arena','#d9c2a3'],['Beige','#c9ad8a'],['Gris perla','#cfcfd2'],['Gris','#8e9096'],['Antracita','#3a3c42'],['Negro','#1e1e22'],['Vainilla','#f6e7a6'],
+  ['Amarillo','#f5c518'],['Mostaza','#e0a82e'],['Melocotón','#f7c59f'],['Mandarina','#ee8a3c'],['Naranja','#e86a1c'],['Teja','#c5562c'],['Rosa bebé','#f8d3dc'],['Rosa palo','#e9aeb9'],['Rosa','#e8718d'],
+  ['Fucsia','#d6337f'],['Coral','#e8644f'],['Rojo','#d12b2b'],['Cereza','#b01e36'],['Burdeos','#7a1f33'],['Lavanda','#d5c8ee'],['Lila','#b59ad6'],['Violeta','#7d4fb0'],['Morado','#5b2e86'],
+  ['Azul bebé','#cfe3f2'],['Celeste','#8fc1de'],['Azul','#3f6fb0'],['Cobalto','#2a4fa3'],['Marino','#27365c'],['Petróleo','#1f5f6b'],['Turquesa','#2fb5b0'],['Menta','#b9e3cf'],['Verde agua','#7fb7a3'],
+  ['Pistacho','#b8cf7a'],['Verde','#4f9e45'],['Salvia','#8a9a6b'],['Oliva','#6f7a35'],['Botella','#2f6b55'],['Camel','#c79a63'],['Caramelo','#b0763a'],['Chocolate','#6b4433'],['Café','#4a2f25']];
+var GAMAS = [{ id: 'safran', nombre: 'DROPS Safran', colores: SAFRAN }, { id: 'basicos', nombre: 'Básicos', colores: BASICOS }];
+var CICLO = ['#c79632', '#c05668', '#e2d8c1', '#538d9c', '#3454a2', '#ce6667'];
+function B(p, n, o) { var b = { p: p, n: n, junto: false, esq: false, color: null }; for (var k in (o || {})) b[k] = o[k]; return b; }
+function ejemplo() {
+  return [{ forma: 'r', rep: 1, color: CICLO[0], bloques: [B('pa', 16)], puntos: {} },
+    { forma: 'r', rep: 16, color: CICLO[1], bloques: [B('pa', 1), B('ch', 1)], puntos: {} },
+    { forma: 'r', rep: 16, color: CICLO[2], bloques: [B('pa', 2), B('ch', 1)], puntos: {} },
+    { forma: 'c', rep: 4, color: CICLO[3], bloques: [B('ch', 3, { esq: true }), B('pa', 1), B('ch', 2), B('pma', 1), B('ch', 2), B('pma', 1), B('ch', 2), B('pma', 1), B('ch', 2), B('pa', 1)], puntos: {} },
+    { forma: 'c', rep: 4, color: CICLO[4], bloques: [B('ch', 2, { esq: true }), B('pa', 3), B('ch', 1), B('pa', 3), B('ch', 1), B('pa', 3), B('ch', 1), B('pa', 3), B('ch', 1), B('pa', 3)], puntos: {} },
+    { forma: 'c', rep: 4, color: CICLO[5], bloques: [B('ch', 2, { esq: true }), B('pma', 19)], puntos: {} }];
+}
 
-var CLAVE = 'grannys.v1';
+var CLAVE = 'grannys.v2';
 var S = (function () {
-  var d = { mios: [], gamas: [], combos: {}, ultimo: {}, gamaActiva: 'basicos', ses: null, pub: { esquemas: [], gamas: [] } };
+  var d = { locales: [], ses: null, cache: { disenos: [], perfiles: [], amistades: [], compartidos: [] } };
   try { var j = JSON.parse(localStorage.getItem(CLAVE) || '{}'); for (var k in d) if (j[k] !== undefined && j[k] !== null) d[k] = j[k]; } catch (e) {}
   return d;
 })();
-var V = { vista: 'inicio', id: null, cols: [], sel: -1, ed: null, hoja: null, fotoGama: null, ocupado: false };
-var CF = { email: '', pass: '' };
-var FOTOS = {};
+var V = { vista: 'inicio', d: null, ro: false, de: '', sucio: false, hoja: null, ocupado: false };
+var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran' };
+var CF = { email: '', pass: '', nombre: '', cod: '' };
 var $ = function (id) { return document.getElementById(id); };
 
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(S)); } catch (e) { toast('No queda espacio para guardar en este dispositivo'); } }
 function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function okHex(c) { return typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c); }
-function hex(r, g, b) { return '#' + [r, g, b].map(function (x) { return ('0' + Math.round(x).toString(16)).slice(-2); }).join(''); }
+function okId(x) { return typeof x === 'string' && /^[0-9a-zA-Z-]{1,64}$/.test(x); }
 function nuevoId() { return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
 function esLocal(x) { return String(x.id).indexOf('loc-') === 0; }
-function okFoto(f) { return typeof f === 'string' && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+\/=]+$/.test(f); }
 var tToast = null;
-function toast(m) { var t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(tToast); tToast = setTimeout(function () { t.hidden = true; }, 3800); }
+function toast(m) { var t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(tToast); tToast = setTimeout(function () { t.hidden = true; }, 4000); }
 
-// ---- Datos que llegan de fuera: se limpian siempre antes de usarlos ----
-function limpio(e) {
-  var v = (Array.isArray(e.vueltas) ? e.vueltas : []).filter(function (t) { return typeof t === 'string' && TIPO[t]; }).slice(0, 30);
-  var c = v.map(function (_, i) { var x = Array.isArray(e.colores) ? e.colores[i] : null; return okHex(x) ? x.toLowerCase() : CICLO[i % CICLO.length]; });
-  return { id: String(e.id), nombre: String(e.nombre || 'Sin nombre').slice(0, 80), vueltas: v, colores: c, publico: !!e.publico, owner: e.owner || null, tiene_foto: !!e.tiene_foto };
+// ---- Todo lo que llega de fuera se limpia antes de usarlo ----
+function sanear(vs) {
+  return (Array.isArray(vs) ? vs : []).slice(0, 40).map(function (v, i) {
+    v = v || {};
+    var pu = {}; if (v.puntos && typeof v.puntos === 'object') Object.keys(v.puntos).slice(0, 3000).forEach(function (k) { if (/^\d+$/.test(k) && okHex(v.puntos[k])) pu[k] = v.puntos[k].toLowerCase(); });
+    return { forma: v.forma === 'c' ? 'c' : 'r', rep: Math.min(200, Math.max(1, v.rep | 0)), color: okHex(v.color) ? v.color.toLowerCase() : CICLO[i % CICLO.length], puntos: pu,
+      bloques: (Array.isArray(v.bloques) ? v.bloques : []).filter(function (b) { return b && typeof b.p === 'string' && PT[b.p]; }).slice(0, 60).map(function (b) {
+        return { p: b.p, n: Math.min(200, Math.max(1, b.n | 0)), junto: !!b.junto, esq: !!b.esq, color: okHex(b.color) ? b.color.toLowerCase() : null }; }) };
+  });
 }
-function gamaLimpia(g) {
-  var c = (Array.isArray(g.colores) ? g.colores : []).filter(function (x) { return Array.isArray(x) && okHex(x[1]); }).slice(0, 150)
-    .map(function (x) { return [String(x[0]).slice(0, 40), x[1].toLowerCase()]; });
-  return { id: String(g.id), nombre: String(g.nombre || 'Gama').slice(0, 40), colores: c, publico: !!g.publico, owner: g.owner || null };
+function disenoLimpio(x) {
+  return { id: String(x.id), nombre: String(x.nombre || 'Sin nombre').slice(0, 80), vueltas: sanear(x.vueltas || (x.datos && x.datos.vueltas)), publico: !!x.publico,
+    owner: okId(x.owner) ? x.owner : null, mod: String(x.actualizado || x.mod || '').slice(0, 40) };
 }
-
-// ---- Fotos de los esquemas guardados en el dispositivo (IndexedDB) ----
-var DBP = null;
-function bd() {
-  return DBP || (DBP = new Promise(function (ok, ko) {
-    var r = indexedDB.open('grannys', 1);
-    r.onupgradeneeded = function () { r.result.createObjectStore('fotos'); };
-    r.onsuccess = function () { ok(r.result); }; r.onerror = function () { ko(r.error); };
-  }));
-}
-function fotoOp(modo, fn) {
-  var op = bd().then(function (d) {
-    return new Promise(function (ok, ko) { var t = d.transaction('fotos', modo), q = fn(t.objectStore('fotos')); t.oncomplete = function () { ok(q.result); }; t.onerror = function () { ko(t.error); }; });
-  }).catch(function () { return null; });
-  // Si el almacén de fotos no responde (navegación privada, etc.), la app no se queda colgada
-  return Promise.race([op, new Promise(function (ok) { setTimeout(function () { ok(null); }, 4000); })]);
-}
-function fotoLeer(id) { return fotoOp('readonly', function (s) { return s.get(id); }); }
-function fotoPoner(id, v) { return fotoOp('readwrite', function (s) { return s.put(v, id); }); }
-function fotoBorrar(id) { return fotoOp('readwrite', function (s) { return s.delete(id); }); }
+function txt(s, n) { return String(s == null ? '' : s).slice(0, n); }
 
 // ---- Nube (Supabase) ----
 function ponerSesion(j) {
-  S.ses = { access_token: j.access_token, refresh_token: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, uid: j.user.id, email: j.user.email, admin: S.ses ? !!S.ses.admin : false };
+  S.ses = { access_token: j.access_token, refresh_token: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000, uid: j.user.id, email: j.user.email };
   guardar();
 }
-function quitarSesion() {
-  S.ses = null; S.mios = S.mios.filter(esLocal); S.gamas = S.gamas.filter(esLocal);
-  if (!buscarGama(S.gamaActiva)) S.gamaActiva = 'basicos';
-  guardar();
-}
+function quitarSesion() { CF = { email: '', pass: '', nombre: '', cod: '' }; S.ses = null; S.cache = { disenos: S.cache.disenos.filter(function (d) { return d.publico; }), perfiles: [], amistades: [], compartidos: [] }; guardar(); }
 async function tok() {
   if (!S.ses) return null;
   if (Date.now() > S.ses.exp - 60000) {
@@ -388,462 +466,385 @@ async function api(ruta, opt) {
   if (t) h.Authorization = 'Bearer ' + t;
   if (opt.prefer) h.Prefer = opt.prefer;
   var r = await fetch(SUPA_URL + ruta, { method: opt.method || 'GET', headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined });
-  var txt = await r.text(), j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
+  var tx = await r.text(), j = null; try { j = tx ? JSON.parse(tx) : null; } catch (e) {}
   if (!r.ok) throw new Error((j && (j.msg || j.message || j.error_description)) || ('Error ' + r.status));
   return j;
 }
+function errTxt(e) { var m = e && e.message || ''; return /fetch|network|load failed/i.test(m) ? 'No se ha podido conectar. Comprueba internet.' : m; }
 async function cargarNube() {
   if (!NUBE) return;
   try {
-    var e = (await api('/rest/v1/esquemas?select=id,nombre,vueltas,colores,publico,owner,tiene_foto&order=creado.desc')).map(limpio);
-    var g = (await api('/rest/v1/gamas?select=id,nombre,colores,publico,owner&order=creado.asc')).map(gamaLimpia);
-    S.pub = { esquemas: e.filter(function (x) { return x.publico; }), gamas: g.filter(function (x) { return x.publico; }) };
+    var d = (await api('/rest/v1/disenos?select=id,nombre,datos,publico,owner,actualizado&order=actualizado.desc')).map(disenoLimpio);
+    var c = { disenos: d, perfiles: [], amistades: [], compartidos: [] };
     if (S.ses) {
-      S.mios = S.mios.filter(esLocal).concat(e.filter(function (x) { return !x.publico; }));
-      S.gamas = S.gamas.filter(esLocal).concat(g.filter(function (x) { return !x.publico; }));
-      var p = await api('/rest/v1/perfiles?select=es_admin&id=eq.' + encodeURIComponent(S.ses.uid));
-      if (S.ses) S.ses.admin = !!(p && p[0] && p[0].es_admin);
+      var r = await Promise.all([api('/rest/v1/perfiles?select=id,nombre,codigo,es_admin'), api('/rest/v1/amistades?select=id,de,para,estado'), api('/rest/v1/compartidos?select=diseno,de,para')]);
+      c.perfiles = (r[0] || []).filter(function (p) { return okId(p.id); }).map(function (p) { return { id: p.id, nombre: txt(p.nombre, 40) || 'Sin nombre', codigo: /^[A-Z0-9]{4,12}$/.test(p.codigo || '') ? p.codigo : '', es_admin: !!p.es_admin }; });
+      c.amistades = (r[1] || []).filter(function (a) { return okId(String(a.id)) && okId(a.de) && okId(a.para); }).map(function (a) { return { id: String(a.id), de: a.de, para: a.para, estado: a.estado === 'aceptada' ? 'aceptada' : 'pendiente' }; });
+      c.compartidos = (r[2] || []).filter(function (x) { return okId(x.diseno) && okId(x.de) && okId(x.para); }).map(function (x) { return { diseno: x.diseno, de: x.de, para: x.para }; });
     }
-    if (!buscarGama(S.gamaActiva)) S.gamaActiva = 'basicos';
-    guardar();
-    if (V.vista === 'inicio' || V.vista === 'perfil') render();
-  } catch (err) { /* sin conexión: se queda con lo último que se cargó */ }
+    if (!S.ses && c.perfiles.length) c.perfiles = [];
+    S.cache = c; guardar();
+    if (V.vista !== 'diseno') render();
+  } catch (err) { /* sin conexión: se queda con lo último cargado */ }
 }
-// Al entrar con cuenta, lo que estaba solo en el dispositivo se sube a la nube
 async function subirLocales() {
-  var locales = S.mios.filter(esLocal);
-  for (var i = 0; i < locales.length; i++) {
-    var e = locales[i], f = await fotoLeer(e.id);
-    var r = await api('/rest/v1/esquemas?select=id', { method: 'POST', prefer: 'return=representation', body: { nombre: e.nombre, vueltas: e.vueltas, colores: e.colores, publico: false, foto: okFoto(f) ? f : null } });
-    var nid = r[0].id;
-    if (S.combos[e.id]) { S.combos[nid] = S.combos[e.id]; delete S.combos[e.id]; }
-    if (S.ultimo[e.id]) { S.ultimo[nid] = S.ultimo[e.id]; delete S.ultimo[e.id]; }
-    await fotoBorrar(e.id);
-    S.mios = S.mios.filter(function (x) { return x.id !== e.id; }); guardar();
-  }
-  var gl = S.gamas.filter(esLocal);
-  for (var k = 0; k < gl.length; k++) {
-    var g = gl[k], rg = await api('/rest/v1/gamas?select=id', { method: 'POST', prefer: 'return=representation', body: { nombre: g.nombre, colores: g.colores, publico: false } });
-    if (S.gamaActiva === g.id) S.gamaActiva = rg[0].id;
-    S.gamas = S.gamas.filter(function (x) { return x.id !== g.id; }); guardar();
+  var l = S.locales.slice();
+  for (var i = 0; i < l.length; i++) {
+    await api('/rest/v1/disenos?select=id', { method: 'POST', prefer: 'return=representation', body: { nombre: l[i].nombre, datos: { vueltas: l[i].vueltas } } });
+    S.locales = S.locales.filter(function (x) { return x.id !== l[i].id; }); guardar();
   }
 }
 
 // ---- Consultas ----
-function biblioteca() { return NUBE && S.pub.esquemas.length ? S.pub.esquemas : INCLUIDOS.map(limpio); }
-function buscar(id) {
-  var todos = INCLUIDOS.map(limpio).concat(S.pub.esquemas, S.mios);
-  for (var i = 0; i < todos.length; i++) if (todos[i].id === id) return todos[i];
-  return null;
+function yo() { return S.ses ? S.ses.uid : null; }
+function miPerfil() { return S.cache.perfiles.filter(function (p) { return p.id === yo(); })[0] || null; }
+function esAdmin() { var p = miPerfil(); return !!(p && p.es_admin); }
+function nombreDe(id) { var p = S.cache.perfiles.filter(function (x) { return x.id === id; })[0]; return p ? p.nombre : 'Alguien'; }
+function mios() { return S.locales.map(disenoLimpio).concat(S.cache.disenos.filter(function (d) { return yo() && d.owner === yo(); })); }
+function conmigo() { var ids = {}; S.cache.compartidos.forEach(function (c) { if (c.para === yo()) ids[c.diseno] = c.de; }); return S.cache.disenos.filter(function (d) { return d.owner !== yo() && ids[d.id]; }); }
+function publicos() { return S.cache.disenos.filter(function (d) { return d.publico && d.owner !== yo(); }); }
+function buscar(id) { var t = S.locales.map(disenoLimpio).concat(S.cache.disenos); for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i]; return null; }
+function amigas() {
+  return S.cache.amistades.filter(function (a) { return a.estado === 'aceptada'; }).map(function (a) { return { rel: a.id, id: a.de === yo() ? a.para : a.de }; });
 }
-function esAdmin() { return !!(NUBE && S.ses && S.ses.admin); }
-function puedeEditar(e) { if (String(e.id).indexOf('inc-') === 0) return false; return e.publico ? esAdmin() : true; }
-function todasGamas() { return GAMAS_FIJAS.concat(S.pub.gamas, S.gamas); }
-function buscarGama(id) { var t = todasGamas(); for (var i = 0; i < t.length; i++) if (t[i].id === id) return t[i]; return null; }
-function gamaAct() { return buscarGama(S.gamaActiva) || GAMAS_FIJAS[0]; }
+
+// ---- Asistente: paso 1 (esquema) y paso 2 (colores) ----
+function VS() { return V.d.vueltas; }
+function vu() { return VS()[U.v]; }
+function nuevaVuelta(pos) {
+  var ant = VS()[pos - 1], forma = ant ? ant.forma : 'r';
+  VS().splice(pos, 0, { forma: forma, rep: forma === 'c' ? 4 : 1, color: CICLO[VS().length % CICLO.length], bloques: [], puntos: {} });
+  U.v = pos; U.b = -1; V.sucio = true;
+}
+function total(v) { return v.bloques.reduce(function (s, b) { return s + b.n; }, 0) * v.rep; }
+function resumen(v) {
+  if (!v.bloques.length) return 'Todavía sin puntos';
+  var t = v.bloques.map(function (b) { return b.n + ' ' + PT[b.p].ab + (b.junto && b.n > 1 ? ' juntos' : ''); }).join(', ');
+  return (v.rep > 1 ? '(' + t + ') × ' + v.rep : t) + ' = ' + total(v) + ' puntos';
+}
 function nombreColor(c) {
-  var t = [gamaAct()].concat(todasGamas());
-  for (var i = 0; i < t.length; i++) for (var k = 0; k < t[i].colores.length; k++) if (t[i].colores[k][1] === c) return t[i].colores[k][0];
-  return 'Color a mano';
+  for (var i = 0; i < GAMAS.length; i++) for (var k = 0; k < GAMAS[i].colores.length; k++) if (GAMAS[i].colores[k][1] === c) return GAMAS[i].colores[k][0];
+  return c.toUpperCase();
 }
-function ajustar(cols, e) { return e.vueltas.map(function (_, i) { return okHex(cols && cols[i]) ? cols[i] : e.colores[i]; }); }
-function actuales() {
-  if (V.vista === 'editar') return V.ed.vueltas;
-  var e = buscar(V.id); return e ? e.vueltas.map(function (t, i) { return { tipo: t, color: V.cols[i] }; }) : [];
+function selDibujo() {
+  if (V.ro || !VS().length) return null;
+  if (U.tab === 'esq') return { v: U.v, b: U.b >= 0 ? U.b : null };
+  return { v: U.v, b: U.modo === 'conjunto' ? U.cb : (U.modo === 'punto' && U.ck != null ? U.cb : null), k: U.modo === 'punto' ? U.ck : null };
 }
-function ponerColor(i, c) {
-  if (!okHex(c) || i < 0) return;
-  c = c.toLowerCase();
-  if (V.vista === 'editar') { V.ed.vueltas[i].color = c; V.ed.sucio = true; }
-  else { V.cols[i] = c; S.ultimo[V.id] = V.cols.slice(); guardar(); }
+function chipsVueltas(conMas) {
+  return '<div class="chips">' + VS().map(function (x, i) { return '<button data-act="irv" data-i="' + i + '" aria-pressed="' + (i === U.v) + '" aria-label="Vuelta ' + (i + 1) + '">' + (i + 1) + '</button>'; }).join('') +
+    (conMas ? '<button class="mas" data-act="otra" aria-label="Añadir vuelta al final">+</button>' : '') + '</div>';
 }
-async function fotoDe(e) {
-  if (!e.tiene_foto) return null;
-  if (FOTOS[e.id]) return FOTOS[e.id];
-  var f = null;
-  if (esLocal(e)) f = await fotoLeer(e.id);
-  else if (NUBE) { try { var r = await api('/rest/v1/esquemas?select=foto&id=eq.' + encodeURIComponent(e.id)); f = r && r[0] && r[0].foto; } catch (err) { f = null; } }
-  if (okFoto(f)) { FOTOS[e.id] = f; return f; }
-  return null;
+function panelEsquema() {
+  if (!VS().length) return '<div class="tarj"><h3>Empieza tu granny</h3><p class="nota">Irás vuelta a vuelta. En cada una añades conjuntos de puntos, por ejemplo «16 puntos altos», y la app los reparte.</p>' +
+    '<button class="grande" data-act="primera">Empezar por la vuelta 1</button><div class="enl"><button data-act="ejemplo">Cargar un ejemplo ya hecho</button></div></div>';
+  var v = vu(), h = '<h2>Vueltas</h2>' + chipsVueltas(true);
+  h += '<div class="tarj"><h3>Vuelta ' + (U.v + 1) + '</h3><p class="nota">' + (U.v === 0 ? 'La que sale del anillo de inicio.' : 'Se apoya en la vuelta ' + U.v + '.') + '</p>' +
+    '<div class="seg" role="group" aria-label="Forma de la vuelta"><button data-act="forma" data-t="r" aria-pressed="' + (v.forma === 'r') + '">Redonda</button><button data-act="forma" data-t="c" aria-pressed="' + (v.forma === 'c') + '">Cuadrada</button></div>';
+  h += v.bloques.map(function (b, i) {
+    var s = '<div class="blo' + (i === U.b ? ' sel' : '') + '"><div class="fila"><button class="paso" data-act="menos" data-i="' + i + '" aria-label="Uno menos">−</button>' +
+      '<input class="num" type="number" inputmode="numeric" min="1" max="200" value="' + b.n + '" data-campo="n" data-i="' + i + '" aria-label="Cuántos puntos">' +
+      '<button class="paso" data-act="mas" data-i="' + i + '" aria-label="Uno más">+</button>' +
+      '<button class="que" data-act="selb" data-i="' + i + '" aria-expanded="' + (i === U.b) + '">' + iconoPunto(b.p) + '<span>' + PT[b.p].nombre + (b.junto && b.n > 1 ? ' · juntos' : '') + (b.esq ? ' · esquina' : '') + '</span></button></div>';
+    if (i === U.b) s += '<div class="ops"><label class="marca"><input type="checkbox" data-campo="junto" data-i="' + i + '"' + (b.junto ? ' checked' : '') + '>Todos en el mismo punto (abanico o grupo)</label>' +
+      (v.forma === 'c' ? '<label class="marca"><input type="checkbox" data-campo="esq" data-i="' + i + '"' + (b.esq ? ' checked' : '') + '>Este conjunto va en la esquina</label>' : '') +
+      '<div class="mini"><button data-act="subir" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>↑ Antes</button><button data-act="bajar" data-i="' + i + '"' + (i === v.bloques.length - 1 ? ' disabled' : '') + '>↓ Después</button>' +
+      '<button data-act="dup" data-i="' + i + '">Duplicar</button><button data-act="quitarb" data-i="' + i + '">Quitar</button></div></div>';
+    return s + '</div>';
+  }).join('');
+  h += '<h2>Añadir un conjunto de puntos</h2><div class="puntos">' + PUNTOS.map(function (p) { return '<button data-act="addp" data-p="' + p.id + '">' + iconoPunto(p.id) + p.nombre + '</button>'; }).join('') + '</div>';
+  h += '<div class="rep"><span>' + (v.forma === 'c' ? 'Esto es un lado. Se repite' : 'Repetir toda la serie') + '</span><button class="paso" data-act="repmenos" aria-label="Una repetición menos">−</button>' +
+    '<input class="num" type="number" inputmode="numeric" min="1" max="200" value="' + v.rep + '" data-campo="rep" aria-label="Veces que se repite la serie"><button class="paso" data-act="repmas" aria-label="Una repetición más">+</button><span>' + (v.rep === 1 ? 'vez' : 'veces') + '</span></div>';
+  h += '<div class="resumen"><b>Vuelta ' + (U.v + 1) + ':</b> ' + esc(resumen(v)) + '</div>';
+  h += '<button class="grande sec" data-act="cerrarv"' + (v.bloques.length ? '' : ' disabled') + '>' + (U.v === VS().length - 1 ? 'Cerrar la vuelta y empezar la ' + (U.v + 2) : 'Ir a la vuelta ' + (U.v + 2)) + '</button>';
+  h += '<div class="enl"><button data-act="insertar">Intercalar una vuelta antes de esta</button><button data-act="quitarv">Eliminar esta vuelta</button></div></div>';
+  return h;
 }
+function panelColor() {
+  if (!VS().length) return '<div class="tarj"><p class="nota">Primero monta al menos una vuelta en «1 · Esquema».</p></div>';
+  var v = vu(), gama = GAMAS.filter(function (g) { return g.id === U.gama; })[0] || GAMAS[0], actual, t;
+  if (U.modo === 'punto' && U.ck != null && v.bloques[U.cb]) { actual = colorDe(v, v.bloques[U.cb], U.ck); t = 'Vuelta ' + (U.v + 1) + ' · un ' + PT[v.bloques[U.cb].p].nombre.toLowerCase(); }
+  else if (U.modo === 'conjunto' && U.cb != null && v.bloques[U.cb]) { var b = v.bloques[U.cb]; actual = b.color || v.color; t = 'Vuelta ' + (U.v + 1) + ' · conjunto de ' + b.n + ' ' + PT[b.p].ab + (v.rep > 1 ? ' (en sus ' + v.rep + ' repeticiones)' : ''); }
+  else if (U.modo === 'vuelta') { actual = v.color; t = 'Vuelta ' + (U.v + 1) + ' entera'; }
+  var h = '<h2>¿Qué quieres colorear?</h2><div class="seg" role="group" aria-label="Qué colorear">' + [['vuelta', 'Vuelta entera'], ['conjunto', 'Un conjunto'], ['punto', 'Un punto']].map(function (m) {
+    return '<button data-act="modo" data-t="' + m[0] + '" aria-pressed="' + (U.modo === m[0]) + '">' + m[1] + '</button>'; }).join('') + '</div><div style="margin-top:8px">' + chipsVueltas(false) + '</div>';
+  if (!t) return h + '<div class="tarj"><p class="nota">Toca en el dibujo ' + (U.modo === 'punto' ? 'el punto' : 'el conjunto') + ' que quieras colorear.</p></div>';
+  return h + '<div class="tarj"><p class="sel-txt">' + esc(t) + '</p><p class="nota">Ahora: ' + esc(nombreColor(actual)) + '. Toca el dibujo para elegir otra parte.</p>' +
+    '<div class="chips">' + GAMAS.map(function (g) { return '<button data-act="gama" data-t="' + g.id + '" aria-pressed="' + (g.id === gama.id) + '">' + esc(g.nombre) + '</button>'; }).join('') + '</div>' +
+    '<div class="paleta">' + gama.colores.map(function (c) { return '<button data-act="color" data-c="' + c[1] + '" title="' + esc(c[0]) + '" aria-label="' + esc(c[0]) + '" aria-pressed="' + (c[1] === actual) + '" style="background:' + c[1] + '"></button>'; }).join('') + '</div>' +
+    '<div class="hex"><label for="hx">Código</label><input type="text" id="hx" maxlength="7" placeholder="#A1B2C3" value="' + actual.toUpperCase() + '" autocapitalize="characters" autocomplete="off"><button data-act="hex">Poner</button>' +
+    '<input type="color" data-campo="pick" value="' + actual + '" aria-label="Elegir color a mano"></div>' +
+    (U.modo !== 'vuelta' ? '<div class="enl"><button data-act="quitarcolor">Volver al color de la vuelta</button></div>' : '') + '</div>';
+}
+function ponerColor(c) {
+  if (!okHex(c)) return false; c = c.toLowerCase(); var v = vu();
+  if (U.modo === 'vuelta') v.color = c;
+  else if (U.modo === 'conjunto' && v.bloques[U.cb]) v.bloques[U.cb].color = c;
+  else if (U.modo === 'punto' && U.ck != null) v.puntos[U.ck] = c;
+  else return false;
+  V.sucio = true; return true;
+}
+function estructura() { vu().puntos = {}; V.sucio = true; }
 
-// ---- Piezas de pantalla ----
-function dibujo(vs) { return dibujarGranny(generar(vs.map(function (v) { return v.tipo; })), vs.map(function (v) { return v.color; })); }
-function chipsGamas() {
-  var G = gamaAct(), mia = !GAMAS_FIJAS.some(function (g) { return g.id === G.id; }) && (G.publico ? esAdmin() : true);
-  return '<h2>Gama de colores</h2><div class="chips">' + todasGamas().map(function (g) {
-    return '<button data-act="gama" data-id="' + esc(g.id) + '" aria-pressed="' + (g.id === G.id) + '">' + esc(g.nombre) + ' · ' + g.colores.length + '</button>';
-  }).join('') + '<button class="mas" data-act="nuevagama">+ Añadir gama</button></div>' +
-    (G.nota || mia ? '<p class="nota">' + esc(G.nota || 'Tonos aproximados, sacados de una foto.') + (mia ? ' <button data-act="pedirborrargama">Eliminar esta gama</button>' : '') + '</p>' : '');
+// ---- Pantallas ----
+function tarjeta(d, pie) {
+  return '<button class="tarjeta" data-act="abrir" data-id="' + esc(d.id) + '"><div class="mini">' + dibujar(d.vueltas, 'tej', null) + '</div><b>' + esc(d.nombre) + '</b><small>' + esc(pie) + '</small></button>';
 }
-function filas(vs, editable) {
-  var G = gamaAct();
-  return '<ul class="lista">' + vs.map(function (v, i) {
-    var s = '<li class="fila' + (i === V.sel ? ' sel' : '') + '"><button class="cab" data-act="sel" data-i="' + i + '" aria-expanded="' + (i === V.sel) + '">' +
-      '<i style="background:' + v.color + '"></i><span><b>Vuelta ' + (i + 1) + ' · ' + esc(TIPO[v.tipo].nombre) + '</b>' + esc(nombreColor(v.color)) + '</span>' + (editable ? icono(v.tipo) : '') + '</button>';
-    if (i === V.sel) {
-      s += '<div class="det"><div class="paleta">' + G.colores.map(function (h) {
-        return '<button data-act="color" data-c="' + h[1] + '" title="' + esc(h[0]) + '" aria-label="' + esc(h[0]) + '" aria-pressed="' + (h[1] === v.color) + '" style="background:' + h[1] + '"></button>';
-      }).join('') + '</div><label class="otro"><input type="color" data-campo="otro" value="' + v.color + '"> Otro color a mano</label>' +
-        (editable ? '<div class="mini2"><button data-act="cambiartipo" data-i="' + i + '">Cambiar tipo</button><button data-act="quitarvuelta" data-i="' + i + '">Quitar vuelta</button></div>' : '') + '</div>';
-    }
-    return s + '</li>';
-  }).join('') + '</ul>';
-}
-function tarjeta(e) {
-  var cols = ajustar(S.ultimo[e.id], e);
-  return '<button class="tarjeta" data-act="abrir" data-id="' + esc(e.id) + '"><div class="mini">' + dibujarGranny(generar(e.vueltas), cols) + '</div><b>' + esc(e.nombre) + '</b><small>' +
-    e.vueltas.length + ' vueltas' + (esLocal(e) ? ' · solo en este móvil' : '') + '</small></button>';
-}
-
 function vistaInicio() {
-  var bib = biblioteca();
-  return '<h1>Grannys</h1><p class="sub">Elige un granny, mira cómo queda tejido y prueba colores vuelta a vuelta.</p>' +
-    '<h2>Biblioteca</h2><div class="rejilla">' + bib.map(tarjeta).join('') + '</div>' +
-    '<h2>Mis esquemas</h2><div class="rejilla">' + S.mios.map(tarjeta).join('') +
-    '<button class="tarjeta nueva" data-act="nuevo"><span>+</span>Nuevo esquema</button></div>' +
-    (esAdmin() ? '<p class="nota">Eres administradora: al guardar un esquema puedes ponerlo en la biblioteca para todas.</p>' : '');
+  var m = mios(), c = conmigo(), p = publicos();
+  var h = '<h1>Grannys</h1><p class="nota">Diseña tu granny vuelta a vuelta, míralo en esquema o tejido y prueba colores.</p><h2>Mis diseños</h2><div class="rejilla">' +
+    m.map(function (d) { return tarjeta(d, d.vueltas.length + ' vueltas' + (esLocal(d) ? ' · solo en este móvil' : (d.publico ? ' · en la biblioteca' : ''))); }).join('') +
+    '<button class="tarjeta nueva" data-act="nuevo"><span>+</span>Nuevo diseño</button></div>';
+  if (c.length) h += '<h2>Compartidos conmigo</h2><div class="rejilla">' + c.map(function (d) { return tarjeta(d, 'De ' + nombreDe(d.owner)); }).join('') + '</div>';
+  if (p.length) h += '<h2>Biblioteca</h2><div class="rejilla">' + p.map(function (d) { return tarjeta(d, d.vueltas.length + ' vueltas'); }).join('') + '</div>';
+  if (NUBE && !S.ses) h += '<p class="nota" style="margin-top:14px">Sin cuenta, tus diseños se guardan solo en este dispositivo. <button class="lnk" data-act="perfil">Entra o crea una cuenta</button> para tenerlos en la nube y compartirlos con amigas.</p>';
+  return h;
 }
-function vistaVer() {
-  var e = buscar(V.id); if (!e) { V.vista = 'inicio'; return vistaInicio(); }
-  var vs = actuales(), cb = S.combos[e.id] || [];
-  return '<div class="barra"><button data-act="volver">‹ Volver</button><strong>' + esc(e.nombre) + '</strong>' + (puedeEditar(e) ? '<button data-act="editar">Editar</button>' : '') + '</div>' +
-    '<div class="visor"><div id="lienzo">' + dibujo(vs) + '</div></div>' +
-    '<div class="acc"><button data-act="azar">Colores al azar</button><button data-act="original">Colores del esquema</button></div>' +
-    chipsGamas() + '<h2>Vueltas · toca una para cambiarle el color</h2>' + filas(vs, false) +
-    '<button class="grande" data-act="guardarcombo">Guardar esta combinación</button>' +
-    (cb.length ? '<h2>Mis combinaciones</h2><div class="combos">' + cb.map(function (c, i) {
-      return '<div class="combo"><button class="tira" data-act="usarcombo" data-i="' + i + '" aria-label="Usar la combinación ' + (i + 1) + '">' +
-        ajustar(c, e).map(function (x) { return '<i style="background:' + x + '"></i>'; }).join('') + '</button><button class="x" data-act="borrarcombo" data-i="' + i + '" aria-label="Borrar la combinación ' + (i + 1) + '">✕</button></div>';
-    }).join('') + '</div>' : '') +
-    (e.tiene_foto ? '<button class="grande sec" data-act="verfoto">Ver el esquema original</button>' : '');
+function visor() {
+  return '<div class="visor"><div id="lienzo">' + dibujar(VS(), U.vista, selDibujo()) + '</div><div class="seg" role="group" aria-label="Vista"><button data-act="vista" data-t="sim" aria-pressed="' + (U.vista === 'sim') + '">Símbolos</button>' +
+    '<button data-act="vista" data-t="tej" aria-pressed="' + (U.vista === 'tej') + '">Tejido</button></div></div>';
 }
-function vistaEditar() {
-  var d = V.ed;
-  return '<div class="barra"><button data-act="cancelar">✕ Cancelar</button><strong>' + (d.id ? 'Editar esquema' : 'Nuevo esquema') + '</strong></div>' +
+function vistaDiseno() {
+  var d = V.d;
+  if (V.ro) return '<div class="barra"><button data-act="volver">‹ Volver</button><strong>' + esc(d.nombre) + '</strong></div>' + (V.de ? '<p class="nota">' + esc(V.de) + '</p>' : '') + visor() +
+    '<div class="tarj">' + VS().map(function (v, i) { return '<p class="lin"><b>Vuelta ' + (i + 1) + ':</b> ' + esc(resumen(v)) + '</p>'; }).join('') + '</div>' +
+    '<button class="grande" data-act="copiar">Guardar una copia en mis diseños</button>' + (V.dejar ? '<button class="grande sec" data-act="dejar">Quitarlo de mi lista</button>' : '');
+  var enNube = d.id && !esLocal(d);
+  return '<div class="barra"><button data-act="volver">‹ Volver</button><strong>' + (d.id ? 'Editar diseño' : 'Nuevo diseño') + '</strong><button data-act="guardardiseno"' + (V.ocupado ? ' disabled' : '') + '>' + (V.ocupado ? 'Guardando…' : 'Guardar') + '</button></div>' +
     '<label class="campo" for="nom">Nombre</label><input type="text" id="nom" data-campo="nombre" maxlength="80" value="' + esc(d.nombre) + '" placeholder="Por ejemplo: Granny girasol">' +
-    '<label class="campo">Foto del esquema (opcional, para tenerlo a mano al tejer)</label>' +
-    (d.foto ? '<img class="fotoesq" src="' + d.foto + '" alt="Foto del esquema">' : (d.cargandoFoto ? '<p class="nota">Cargando la foto…</p>' : '')) +
-    '<input type="file" accept="image/*" data-campo="fotoesq" aria-label="Elegir foto del esquema">' +
-    (d.foto ? '<p class="nota"><button data-act="quitarfoto">Quitar la foto</button></p>' : '') +
-    '<div class="visor"><div id="lienzo">' + dibujo(d.vueltas) + '</div></div>' +
-    '<h2>Vueltas</h2>' + (d.vueltas.length ? filas(d.vueltas, true) : '<p class="vacio">Mira el esquema y di cómo es cada vuelta, empezando por la que sale del anillo. La app calcula los puntos.</p>') +
-    '<button class="grande sec" data-act="nuevavuelta">+ Añadir vuelta</button>' +
-    (d.vueltas.length ? chipsGamas() : '') +
-    (esAdmin() ? '<label class="marca"><input type="checkbox" data-campo="publico"' + (d.publico ? ' checked' : '') + '><span><b>Ponerlo en la biblioteca</b><br>Lo verán todas las usuarias. No subas esquemas de otros autores sin permiso.</span></label>' : '') +
-    '<button class="grande" data-act="guardaresquema"' + (V.ocupado ? ' disabled' : '') + '>' + (V.ocupado ? 'Guardando…' : 'Guardar esquema') + '</button>' +
-    (d.id ? '<button class="grande rojo" data-act="pedirborrar">Eliminar esquema</button>' : '');
+    '<div class="seg" style="margin-top:10px" role="group" aria-label="Paso"><button data-act="tab" data-t="esq" aria-pressed="' + (U.tab === 'esq') + '">1 · Esquema</button><button data-act="tab" data-t="col" aria-pressed="' + (U.tab === 'col') + '">2 · Colores</button></div>' +
+    visor() + (U.tab === 'esq' ? panelEsquema() : panelColor()) +
+    (esAdmin() ? '<label class="marca" style="margin-top:14px"><input type="checkbox" data-campo="publico"' + (d.publico ? ' checked' : '') + '><span><b>Ponerlo en la biblioteca</b> (lo verán todas las usuarias)</span></label>' : '') +
+    '<button class="grande" data-act="guardardiseno"' + (V.ocupado ? ' disabled' : '') + '>' + (V.ocupado ? 'Guardando…' : 'Guardar diseño') + '</button>' +
+    (d.id ? '<button class="grande sec" data-act="compartir">Compartir con amigas</button><button class="grande rojo" data-act="pedirborrar">Eliminar diseño</button>' : '') +
+    (d.id && !enNube ? '<p class="nota" style="margin-top:8px">Este diseño está solo en este dispositivo.</p>' : '');
+}
+function formAcceso() {
+  return '<div class="bloque"><b>Tu cuenta</b><p>Con cuenta, tus diseños se guardan en la nube y puedes compartirlos con amigas.</p>' +
+    '<label class="campo" for="em">Correo</label><input type="email" id="em" data-campo="email" autocomplete="email" autocapitalize="off" value="' + esc(CF.email) + '">' +
+    '<label class="campo" for="pw">Contraseña (6 caracteres o más)</label><input type="password" id="pw" data-campo="pass" autocomplete="current-password" value="' + esc(CF.pass) + '">' +
+    '<button class="grande" data-act="entrar"' + (V.ocupado ? ' disabled' : '') + '>Entrar</button>' +
+    '<h2>¿Aún no tienes cuenta?</h2><label class="campo" for="nm">Tu nombre (así te verán tus amigas)</label><input type="text" id="nm" data-campo="nombreu" maxlength="40" autocomplete="nickname" value="' + esc(CF.nombre) + '">' +
+    '<button class="grande sec" data-act="crearcuenta"' + (V.ocupado ? ' disabled' : '') + '>Crear cuenta con ese correo y contraseña</button></div>';
+}
+function vistaAmigas() {
+  var h = '<h1>Amigas</h1>';
+  if (!NUBE) return h + '<div class="bloque"><p>La nube todavía no está conectada.</p></div>';
+  if (!S.ses) return h + '<p class="nota">Para tener amigas y compartir diseños hace falta una cuenta.</p>' + formAcceso();
+  var p = miPerfil(), am = amigas(), rec = S.cache.amistades.filter(function (a) { return a.estado === 'pendiente' && a.para === yo(); }), env = S.cache.amistades.filter(function (a) { return a.estado === 'pendiente' && a.de === yo(); });
+  h += '<div class="bloque"><b>Tu código de amiga</b><p>Dáselo a quien quieras que te añada.</p><div class="codigo"><span id="micod">' + esc(p && p.codigo || '······') + '</span><button data-act="copiarcod">Copiar</button></div></div>';
+  h += '<div class="bloque"><b>Añadir una amiga</b><label class="campo" for="cod">Su código</label><div class="codigo"><input type="text" id="cod" data-campo="cod" maxlength="12" autocapitalize="characters" autocomplete="off" value="' + esc(CF.cod) + '"><button data-act="pediramiga"' + (V.ocupado ? ' disabled' : '') + '>Enviar solicitud</button></div></div>';
+  if (rec.length) h += '<h2>Solicitudes que te han enviado</h2>' + rec.map(function (a) { return '<div class="persona"><span>' + esc(nombreDe(a.de)) + '</span><button data-act="aceptar" data-id="' + esc(a.id) + '">Aceptar</button><button class="sec" data-act="quitaramiga" data-id="' + esc(a.id) + '">Rechazar</button></div>'; }).join('');
+  h += '<h2>Tus amigas</h2>' + (am.length ? am.map(function (a) { return '<div class="persona"><span>' + esc(nombreDe(a.id)) + '</span><button class="sec" data-act="pedirquitar" data-id="' + esc(a.rel) + '">Quitar</button></div>'; }).join('') : '<p class="nota">Todavía no tienes amigas añadidas.</p>');
+  if (env.length) h += '<h2>Solicitudes pendientes de respuesta</h2>' + env.map(function (a) { return '<div class="persona"><span>' + esc(nombreDe(a.para)) + '</span><button class="sec" data-act="quitaramiga" data-id="' + esc(a.id) + '">Cancelar</button></div>'; }).join('');
+  return h;
 }
 function vistaPerfil() {
   var h = '<h1>Perfil</h1>';
-  if (!NUBE) h += '<div class="bloque"><b>Biblioteca compartida</b><p>Todavía no está conectada. De momento los esquemas que crees se guardan solo en este dispositivo.</p></div>';
-  else if (S.ses) h += '<div class="bloque"><b>Tu cuenta</b><p>' + esc(S.ses.email) + (S.ses.admin ? ' · administradora' : '') + '</p>' +
-    '<div class="acc"><button data-act="salir">Cerrar sesión</button></div><button class="grande rojo" data-act="pedirborrarcuenta">Eliminar mi cuenta</button></div>';
-  else h += '<div class="bloque"><b>Tu cuenta</b><p>Con cuenta, tus esquemas y gamas se guardan en la nube y los tienes en cualquier dispositivo. La biblioteca se puede usar sin cuenta.</p>' +
-    '<label class="campo" for="em">Correo</label><input type="email" id="em" data-campo="email" autocomplete="email" autocapitalize="off" value="' + esc(CF.email) + '">' +
-    '<label class="campo" for="pw">Contraseña (6 caracteres o más)</label><input type="password" id="pw" data-campo="pass" autocomplete="current-password" value="' + esc(CF.pass) + '">' +
-    '<div class="acc"><button data-act="entrar"' + (V.ocupado ? ' disabled' : '') + '>Entrar</button><button data-act="crearcuenta"' + (V.ocupado ? ' disabled' : '') + '>Crear cuenta</button></div></div>';
-  h += '<div class="bloque"><b>Copia de seguridad</b><p>Guarda en un archivo lo que hay solo en este dispositivo: esquemas sin subir, gamas propias y combinaciones de colores.</p>' +
-    '<div class="acc"><button data-act="exportar">Exportar</button><button data-act="importar">Importar</button></div><input type="file" id="imp" accept="application/json,.json" data-campo="importar" hidden></div>';
-  return h;
+  if (!NUBE) return h + '<div class="bloque"><b>Nube</b><p>Todavía no está conectada. Los diseños se guardan solo en este dispositivo.</p></div>';
+  if (!S.ses) return h + formAcceso();
+  var p = miPerfil();
+  return h + '<div class="bloque"><b>Tu cuenta</b><p>' + esc(S.ses.email) + (esAdmin() ? ' · administradora' : '') + '</p>' +
+    '<label class="campo" for="nm2">Tu nombre</label><div class="codigo"><input type="text" id="nm2" data-campo="nombreu" maxlength="40" value="' + esc(CF.nombre || (p ? p.nombre : '')) + '"><button data-act="guardarnombre">Guardar</button></div>' +
+    '<button class="grande sec" data-act="salir">Cerrar sesión</button><button class="grande rojo" data-act="pedirborrarcuenta">Eliminar mi cuenta</button></div>';
 }
 function render() {
-  var h = V.vista === 'ver' ? vistaVer() : V.vista === 'editar' ? vistaEditar() : V.vista === 'perfil' ? vistaPerfil() : vistaInicio();
+  var h = V.vista === 'diseno' ? vistaDiseno() : V.vista === 'amigas' ? vistaAmigas() : V.vista === 'perfil' ? vistaPerfil() : vistaInicio();
   $('app').innerHTML = h;
-  $('nav').hidden = !(V.vista === 'inicio' || V.vista === 'perfil');
-  $('nb').setAttribute('aria-current', V.vista === 'inicio' ? 'page' : 'false');
-  $('np').setAttribute('aria-current', V.vista === 'perfil' ? 'page' : 'false');
+  $('nav').hidden = V.vista === 'diseno';
+  [['nb', 'inicio'], ['na', 'amigas'], ['np', 'perfil']].forEach(function (x) { $(x[0]).setAttribute('aria-current', V.vista === x[1] ? 'page' : 'false'); });
+  var n = S.ses ? S.cache.amistades.filter(function (a) { return a.estado === 'pendiente' && a.para === yo(); }).length : 0;
+  $('na').textContent = 'Amigas' + (n ? ' (' + n + ')' : '');
 }
-function ir(vista) { V.vista = vista; V.sel = -1; render(); window.scrollTo(0, 0); }
-
-// ---- Hojas (ventanas que suben desde abajo) ----
-function hoja(titulo, html, tipo) { V.hoja = tipo || 'x'; $('htit').textContent = titulo; $('cuerpo').innerHTML = html; $('velo').hidden = false; $('hoja').scrollTop = 0; }
-function cerrar() { V.hoja = null; V.fotoGama = null; $('velo').hidden = true; $('cuerpo').innerHTML = ''; }
-function confirmar(titulo, texto, accion, boton) {
-  hoja(titulo, '<p>' + esc(texto) + '</p><button class="grande rojo" data-act="' + accion + '">' + esc(boton) + '</button><button class="grande sec" data-act="cerrar">Cancelar</button>');
+function ir(v) { V.vista = v; render(); window.scrollTo(0, 0); }
+function hoja(titulo, html) { V.hoja = 1; $('htit').textContent = titulo; $('cuerpo').innerHTML = html; $('velo').hidden = false; $('hoja').scrollTop = 0; }
+function cerrar() { V.hoja = null; $('velo').hidden = true; $('cuerpo').innerHTML = ''; }
+function confirmar(titulo, texto, accion, boton, id) {
+  hoja(titulo, '<p>' + esc(texto) + '</p><button class="grande rojo" data-act="' + accion + '"' + (id ? ' data-id="' + esc(id) + '"' : '') + '>' + esc(boton) + '</button><button class="grande sec" data-act="cerrar">Cancelar</button>');
 }
-function hojaTipos(pos) {
-  var geo = generar(V.ed.vueltas.map(function (v) { return v.tipo; })), yaCuadrado = pos > 0 && geo[pos - 1].c1 > 0.5;
-  hoja('¿Cómo es la vuelta ' + (pos + 1) + '?', '<div class="tipos">' + TIPOS.map(function (t) {
-    var off = t.id === 'cuadrar' && yaCuadrado;
-    return '<button data-act="tipo" data-t="' + t.id + '"' + (off ? ' disabled' : '') + '>' + icono(t.id) + '<span><b>' + t.nombre + '</b><small>' + (off ? 'El granny ya es cuadrado' : t.desc) + '</small></span></button>';
-  }).join('') + '</div>');
-}
-function hojaGama() {
-  hoja('Añadir una gama de hilo', '<div class="bloque"><b>Con una foto o captura de la carta de colores</b><p>Sube la imagen donde se ven todos los colores del hilo y la app los saca de ahí.</p>' +
-    '<label class="campo" for="gnombre">Nombre de la gama</label><input type="text" id="gnombre" maxlength="40" placeholder="Por ejemplo: DROPS Paris">' +
-    '<input type="file" accept="image/*" data-campo="fotogama" aria-label="Elegir foto de la carta de colores"><div id="fotozona"></div></div>');
-}
-
-// Saca los colores principales de una imagen. No es IA: solo cuenta píxeles.
-function extraerColores(d, w, h) {
-  function px(x, y) { var i = (y * w + x) * 4; return [d[i], d[i + 1], d[i + 2]]; }
-  function dist(a, b) { return Math.sqrt((a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2])); }
-  var esq = [px(1, 1), px(w - 2, 1), px(1, h - 2), px(w - 2, h - 2)];
-  var fondo = esq.every(function (e) { return dist(e, esq[0]) < 24; }) ? esq[0] : null;
-  var cubos = {}, total = 0;
-  for (var i = 0; i < d.length; i += 4) {
-    if (d[i + 3] < 128) continue;
-    var c = [d[i], d[i + 1], d[i + 2]];
-    if (fondo && dist(c, fondo) < 30) continue;
-    var k = (c[0] >> 4) + ',' + (c[1] >> 4) + ',' + (c[2] >> 4), b = cubos[k] || (cubos[k] = [0, 0, 0, 0]);
-    b[0] += c[0]; b[1] += c[1]; b[2] += c[2]; b[3]++; total++;
-  }
-  var lista = Object.keys(cubos).map(function (k) { var b = cubos[k]; return { c: [b[0] / b[3], b[1] / b[3], b[2] / b[3]], n: b[3] }; })
-    .filter(function (x) { return x.n > total * 0.006; }).sort(function (a, b) { return b.n - a.n; });
-  var fin = [];
-  lista.forEach(function (x) { if (fin.length < 60 && fin.every(function (y) { return dist(x.c, y.c) > 38; })) fin.push(x); });
-  return fin.map(function (x) { return hex(x.c[0], x.c[1], x.c[2]); });
-}
-function leerImagen(archivo) {
-  return new Promise(function (ok, ko) {
-    var l = new FileReader();
-    l.onload = function () { var img = new Image(); img.onload = function () { ok(img); }; img.onerror = ko; img.src = l.result; };
-    l.onerror = ko; l.readAsDataURL(archivo);
-  });
-}
-function reducir(img, max, q) {
-  var W = img.naturalWidth || img.width, H = img.naturalHeight || img.height, k = Math.min(1, max / Math.max(W, H, 1));
-  var cv = document.createElement('canvas'); cv.width = Math.max(4, Math.round(W * k)); cv.height = Math.max(4, Math.round(H * k));
-  var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, 0, 0, cv.width, cv.height);
-  return cv.toDataURL('image/jpeg', q);
-}
-function fotoComprimida(img) {
-  var max = 1100, q = 0.76, d = reducir(img, max, q), n = 0;
-  while (d.length > 520000 && n < 5) { max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.06); d = reducir(img, max, q); n++; }
-  return d.length > 590000 ? null : d;
-}
-function cargarFotoGama(img) {
-  var k = Math.min(1, 640 / Math.max(img.naturalWidth || img.width, 1));
-  var w = Math.max(4, Math.round((img.naturalWidth || img.width) * k)), h = Math.max(4, Math.round((img.naturalHeight || img.height) * k));
-  $('fotozona').innerHTML = '<canvas id="foto" width="' + w + '" height="' + h + '"></canvas><p class="nota" id="fotomsg"></p><div class="tira" id="tira" style="display:flex;flex-wrap:wrap;gap:5px;margin:8px 0"></div>' +
-    (esAdmin() ? '<label class="marca"><input type="checkbox" id="gpub"><span><b>Para todas las usuarias</b></span></label>' : '') +
-    '<button class="grande" data-act="usargama">Guardar esta gama</button>';
-  var ctx = $('foto').getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, w, h);
-  V.fotoGama = extraerColores(ctx.getImageData(0, 0, w, h).data, w, h);
-  pintarTira();
-}
-function pintarTira() {
-  $('fotomsg').textContent = 'He encontrado ' + V.fotoGama.length + ' colores. Si falta alguno, toca ese color en la foto. Si sobra, tócalo aquí abajo para quitarlo.';
-  $('tira').innerHTML = V.fotoGama.map(function (c, i) { return '<i data-act="quitarcolor" data-i="' + i + '" style="background:' + c + ';cursor:pointer"></i>'; }).join('');
+function abrirEditor(d, ro) { V.d = d; V.ro = !!ro; V.sucio = false; U.tab = 'esq'; U.v = 0; U.b = -1; U.cb = null; U.ck = null; U.modo = 'vuelta'; U.vista = ro ? 'tej' : 'sim'; ir('diseno'); }
+function hojaCompartir() {
+  var d = V.d, am = amigas(), ya = {};
+  S.cache.compartidos.forEach(function (c) { if (c.diseno === d.id && c.de === yo()) ya[c.para] = 1; });
+  hoja('Compartir «' + d.nombre + '»', am.length ? '<p class="nota">Tu amiga lo verá en «Compartidos conmigo» y podrá guardarse una copia. No puede cambiar el tuyo.</p>' + am.map(function (a) {
+    return '<div class="persona"><span>' + esc(nombreDe(a.id)) + '</span><button class="' + (ya[a.id] ? 'sec' : '') + '" data-act="' + (ya[a.id] ? 'nocompartir' : 'sicompartir') + '" data-id="' + esc(a.id) + '">' + (ya[a.id] ? 'Dejar de compartir' : 'Compartir') + '</button></div>'; }).join('')
+    : '<p>Todavía no tienes amigas. Añádelas en la pestaña «Amigas» con su código.</p>');
 }
 
 // ---- Acciones ----
 var ACT = {
-  inicio: function () { ir('inicio'); },
-  perfil: function () { ir('perfil'); },
+  inicio: function () { ir('inicio'); cargarNube(); }, amigas: function () { ir('amigas'); cargarNube(); }, perfil: function () { CF.nombre = ''; ir('perfil'); },
   cerrar: cerrar,
-  abrir: function (d) { var e = buscar(d.id); if (!e) return; V.id = e.id; V.cols = ajustar(S.ultimo[e.id], e); ir('ver'); },
-  volver: function () { ir('inicio'); },
-  sel: function (d) { var i = +d.i; V.sel = V.sel === i ? -1 : i; render(); },
-  color: function (d) { ponerColor(V.sel, d.c); render(); },
-  gama: function (d) { if (buscarGama(d.id)) { S.gamaActiva = d.id; guardar(); render(); } },
-  azar: function () {
-    var G = gamaAct().colores; if (!G.length) return;
-    var n = Math.min(G.length, 2 + Math.floor(Math.random() * 3)), p = G.slice().sort(function () { return Math.random() - 0.5; }).slice(0, n), ant = -1;
-    V.cols = V.cols.map(function () { var k; do { k = Math.floor(Math.random() * n); } while (n > 1 && k === ant); ant = k; return p[k][1]; });
-    S.ultimo[V.id] = V.cols.slice(); guardar(); render();
+  nuevo: function () { abrirEditor({ id: null, nombre: '', vueltas: [], publico: false }, false); },
+  abrir: function (d) {
+    var x = buscar(d.id); if (!x) return;
+    var mio = esLocal(x) || (yo() && x.owner === yo());
+    V.de = mio ? '' : (x.publico ? 'De la biblioteca' : 'Compartido por ' + nombreDe(x.owner));
+    V.dejar = !mio && !x.publico;
+    abrirEditor({ id: x.id, nombre: x.nombre, vueltas: sanear(x.vueltas), publico: x.publico, owner: x.owner }, !mio);
   },
-  original: function () { var e = buscar(V.id); V.cols = e.colores.slice(); delete S.ultimo[V.id]; guardar(); render(); },
-  guardarcombo: function () {
-    var l = S.combos[V.id] || (S.combos[V.id] = []);
-    if (l.some(function (c) { return c.join() === V.cols.join(); })) { toast('Esa combinación ya está guardada'); return; }
-    if (l.length >= 20) l.shift();
-    l.push(V.cols.slice()); guardar(); render(); toast('Combinación guardada en este dispositivo');
+  volver: function () { if (!V.ro && V.sucio) confirmar('¿Salir sin guardar?', 'Se perderán los cambios de este diseño.', 'descartar', 'Salir sin guardar'); else ACT.descartar(); },
+  descartar: function () { cerrar(); V.d = null; ir('inicio'); },
+  copiar: function () { var o = V.d; abrirEditor({ id: null, nombre: (o.nombre + ' (copia)').slice(0, 80), vueltas: sanear(o.vueltas), publico: false }, false); V.sucio = true; toast('Es una copia tuya: cámbiala y pulsa Guardar'); },
+  dejar: async function () {
+    try { await api('/rest/v1/compartidos?diseno=eq.' + encodeURIComponent(V.d.id) + '&para=eq.' + encodeURIComponent(yo()), { method: 'DELETE' }); V.d = null; await cargarNube(); ir('inicio'); }
+    catch (e) { toast(errTxt(e)); }
   },
-  usarcombo: function (d) { var e = buscar(V.id), c = (S.combos[V.id] || [])[+d.i]; if (c) { V.cols = ajustar(c, e); S.ultimo[V.id] = V.cols.slice(); guardar(); render(); window.scrollTo(0, 0); } },
-  borrarcombo: function (d) { (S.combos[V.id] || []).splice(+d.i, 1); guardar(); render(); },
-  verfoto: async function () {
-    hoja('Esquema original', '<p class="nota">Cargando…</p>');
-    var f = await fotoDe(buscar(V.id)); if (V.hoja === null) return;
-    $('cuerpo').innerHTML = f ? '<img class="orig" src="' + f + '" alt="Foto del esquema original">' : '<p class="aviso">No he podido cargar la foto. Comprueba la conexión.</p>';
-  },
-  nuevo: function () { V.ed = { id: null, nombre: '', vueltas: [], publico: false, foto: null, fotoCambiada: false, sucio: false }; ir('editar'); },
-  editar: async function () {
-    var e = buscar(V.id); if (!e || !puedeEditar(e)) return;
-    V.ed = { id: e.id, nombre: e.nombre, vueltas: e.vueltas.map(function (t, i) { return { tipo: t, color: e.colores[i] }; }), publico: e.publico, foto: null, fotoCambiada: false, sucio: false, cargandoFoto: e.tiene_foto };
-    ir('editar');
-    if (e.tiene_foto) { var f = await fotoDe(e); if (V.ed && V.ed.id === e.id && !V.ed.fotoCambiada) { V.ed.foto = f; V.ed.cargandoFoto = false; if (V.vista === 'editar') render(); } }
-  },
-  cancelar: function () {
-    if (V.ed && V.ed.sucio) confirmar('¿Salir sin guardar?', 'Se perderán los cambios de este esquema.', 'descartar', 'Salir sin guardar'); else ACT.descartar();
-  },
-  descartar: function () { var id = V.ed && V.ed.id; cerrar(); V.ed = null; if (id && buscar(id)) ir('ver'); else ir('inicio'); },
-  nuevavuelta: function () { V.pos = { modo: 'nueva' }; hojaTipos(V.ed.vueltas.length); },
-  cambiartipo: function (d) { V.pos = { modo: 'cambiar', i: +d.i }; hojaTipos(+d.i); },
-  tipo: function (d) {
-    if (!TIPO[d.t] || !V.ed) return;
-    if (V.pos.modo === 'nueva') { V.ed.vueltas.push({ tipo: d.t, color: CICLO[V.ed.vueltas.length % CICLO.length] }); V.sel = -1; }
-    else V.ed.vueltas[V.pos.i].tipo = d.t;
-    V.ed.sucio = true; cerrar(); render();
-  },
-  quitarvuelta: function (d) { V.ed.vueltas.splice(+d.i, 1); V.sel = -1; V.ed.sucio = true; render(); },
-  quitarfoto: function () { V.ed.foto = null; V.ed.fotoCambiada = true; V.ed.sucio = true; render(); },
-  guardaresquema: async function () {
-    var d = V.ed, nombre = d.nombre.trim();
-    if (!nombre) { toast('Ponle un nombre al esquema'); return; }
-    if (!d.vueltas.length) { toast('Añade al menos una vuelta'); return; }
-    if (d.vueltas.length > 30) { toast('Como mucho 30 vueltas'); return; }
-    var datos = { nombre: nombre.slice(0, 80), vueltas: d.vueltas.map(function (v) { return v.tipo; }), colores: d.vueltas.map(function (v) { return v.color; }) };
+  tab: function (d) { U.tab = d.t; U.b = -1; U.cb = null; U.ck = null; render(); },
+  vista: function (d) { U.vista = d.t; render(); },
+  primera: function () { nuevaVuelta(0); render(); },
+  ejemplo: function () { V.d.vueltas = ejemplo(); U.v = 0; U.b = -1; V.sucio = true; render(); },
+  irv: function (d) { U.v = +d.i; U.b = -1; U.cb = null; U.ck = null; render(); },
+  otra: function () { nuevaVuelta(VS().length); render(); },
+  cerrarv: function () { if (U.v === VS().length - 1) nuevaVuelta(VS().length); else { U.v++; U.b = -1; } render(); },
+  insertar: function () { nuevaVuelta(U.v); render(); },
+  quitarv: function () { VS().splice(U.v, 1); U.b = -1; U.v = Math.max(0, Math.min(U.v, VS().length - 1)); V.sucio = true; render(); },
+  forma: function (d) { var v = vu(); if (v.forma === d.t) return; v.forma = d.t; if (d.t === 'c' && v.rep === 1) v.rep = 4; V.sucio = true; render(); },
+  addp: function (d) { if (!PT[d.p]) return; var v = vu(); if (v.bloques.length >= 60) { toast('Como mucho 60 conjuntos por vuelta'); return; } v.bloques.push(B(d.p, 1)); U.b = v.bloques.length - 1; estructura(); render(); },
+  selb: function (d) { U.b = U.b === +d.i ? -1 : +d.i; render(); },
+  mas: function (d) { var b = vu().bloques[+d.i]; b.n = Math.min(200, b.n + 1); estructura(); render(); },
+  menos: function (d) { var b = vu().bloques[+d.i]; b.n = Math.max(1, b.n - 1); estructura(); render(); },
+  subir: function (d) { var a = vu().bloques, i = +d.i; if (i > 0) { a.splice(i - 1, 0, a.splice(i, 1)[0]); U.b = i - 1; estructura(); render(); } },
+  bajar: function (d) { var a = vu().bloques, i = +d.i; if (i < a.length - 1) { a.splice(i + 1, 0, a.splice(i, 1)[0]); U.b = i + 1; estructura(); render(); } },
+  dup: function (d) { var a = vu().bloques, i = +d.i, o = a[i]; if (a.length >= 60) return; a.splice(i + 1, 0, B(o.p, o.n, { junto: o.junto, color: o.color })); U.b = i + 1; estructura(); render(); },
+  quitarb: function (d) { vu().bloques.splice(+d.i, 1); U.b = -1; estructura(); render(); },
+  repmas: function () { var v = vu(); v.rep = Math.min(200, v.rep + 1); estructura(); render(); },
+  repmenos: function () { var v = vu(); v.rep = Math.max(1, v.rep - 1); estructura(); render(); },
+  modo: function (d) { U.modo = d.t; U.ck = null; if (d.t === 'vuelta') U.cb = null; render(); },
+  gama: function (d) { U.gama = d.t; render(); },
+  color: function (d) { if (ponerColor(d.c)) render(); },
+  hex: function () { var x = $('hx').value.trim(); if (x && x[0] !== '#') x = '#' + x; if (ponerColor(x)) render(); else { toast('Escribe un código como #A1B2C3'); $('hx').focus(); } },
+  quitarcolor: function () { var v = vu(); if (U.modo === 'conjunto' && v.bloques[U.cb]) v.bloques[U.cb].color = null; if (U.modo === 'punto' && U.ck != null) delete v.puntos[U.ck]; V.sucio = true; render(); },
+  guardardiseno: async function () {
+    var d = V.d, nombre = d.nombre.trim();
+    if (!nombre) { toast('Ponle un nombre al diseño'); return; }
+    if (!d.vueltas.some(function (v) { return v.bloques.length; })) { toast('Añade al menos una vuelta con puntos'); return; }
+    var vs = sanear(d.vueltas);
     V.ocupado = true; render();
     try {
-      var id = d.id;
-      if (NUBE && S.ses && !(id && esLocal({ id: id }))) {
-        datos.publico = esAdmin() && !!d.publico;
-        if (d.fotoCambiada) datos.foto = d.foto;
-        if (id) await api('/rest/v1/esquemas?id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: datos });
-        else id = (await api('/rest/v1/esquemas?select=id', { method: 'POST', prefer: 'return=representation', body: datos }))[0].id;
-        if (d.fotoCambiada) delete FOTOS[id];
-        await cargarNube();
+      if (NUBE && S.ses) {
+        var cuerpo = { nombre: nombre.slice(0, 80), datos: { vueltas: vs }, publico: esAdmin() && !!d.publico };
+        if (d.id && !esLocal(d)) { cuerpo.actualizado = new Date().toISOString(); await api('/rest/v1/disenos?id=eq.' + encodeURIComponent(d.id), { method: 'PATCH', body: cuerpo }); }
+        else { var vieja = d.id; d.id = (await api('/rest/v1/disenos?select=id', { method: 'POST', prefer: 'return=representation', body: cuerpo }))[0].id; if (vieja) { S.locales = S.locales.filter(function (x) { return x.id !== vieja; }); guardar(); } }
+        V.ocupado = false; V.sucio = false; await cargarNube();
       } else {
-        if (!id) id = 'loc-' + nuevoId();
-        var viejo = buscar(id), obj = limpio({ id: id, nombre: datos.nombre, vueltas: datos.vueltas, colores: datos.colores, tiene_foto: d.fotoCambiada ? !!d.foto : !!(viejo && viejo.tiene_foto) });
-        if (d.fotoCambiada) { delete FOTOS[id]; if (d.foto) await fotoPoner(id, d.foto); else await fotoBorrar(id); }
-        S.mios = S.mios.filter(function (x) { return x.id !== id; }); S.mios.unshift(obj); guardar();
+        if (!d.id) d.id = 'loc-' + nuevoId();
+        S.locales = S.locales.filter(function (x) { return x.id !== d.id; }); S.locales.unshift({ id: d.id, nombre: nombre.slice(0, 80), vueltas: vs, mod: new Date().toISOString() }); guardar();
+        V.ocupado = false; V.sucio = false;
       }
-      delete S.ultimo[id]; guardar();
-      V.ocupado = false; V.ed = null;
-      var e = buscar(id);
-      if (e) { V.id = id; V.cols = e.colores.slice(); ir('ver'); } else ir('inicio');
-      toast('Esquema guardado');
-    } catch (err) { V.ocupado = false; render(); toast('No se ha podido guardar: ' + err.message); }
+      render(); toast(S.ses ? 'Diseño guardado' : 'Guardado en este dispositivo');
+    } catch (e) { V.ocupado = false; render(); toast('No se ha podido guardar: ' + errTxt(e)); }
   },
-  pedirborrar: function () { confirmar('¿Eliminar este esquema?', 'Se borrará' + (V.ed.publico ? ' de la biblioteca de todas las usuarias' : '') + ' y no se puede deshacer.', 'borraresquema', 'Eliminar'); },
-  borraresquema: async function () {
-    var id = V.ed.id; cerrar();
+  pedirborrar: function () { confirmar('¿Eliminar este diseño?', 'No se puede deshacer. Si lo habías compartido, tus amigas dejarán de verlo.', 'borrardiseno', 'Eliminar'); },
+  borrardiseno: async function () {
+    var id = V.d.id; cerrar();
     try {
-      if (esLocal({ id: id })) await fotoBorrar(id); else await api('/rest/v1/esquemas?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
-      S.mios = S.mios.filter(function (x) { return x.id !== id; }); S.pub.esquemas = S.pub.esquemas.filter(function (x) { return x.id !== id; });
-      delete S.combos[id]; delete S.ultimo[id]; delete FOTOS[id]; guardar(); V.ed = null; ir('inicio'); toast('Esquema eliminado');
-    } catch (err) { toast('No se ha podido eliminar: ' + err.message); }
+      if (esLocal(V.d)) { S.locales = S.locales.filter(function (x) { return x.id !== id; }); guardar(); }
+      else { await api('/rest/v1/disenos?id=eq.' + encodeURIComponent(id), { method: 'DELETE' }); await cargarNube(); }
+      V.d = null; ir('inicio'); toast('Diseño eliminado');
+    } catch (e) { toast('No se ha podido eliminar: ' + errTxt(e)); }
   },
-  nuevagama: hojaGama,
-  quitarcolor: function (d) { if (V.fotoGama) { V.fotoGama.splice(+d.i, 1); pintarTira(); } },
-  usargama: async function () {
-    if (!V.fotoGama || !V.fotoGama.length) { toast('No hay colores que guardar'); return; }
-    var nombre = ($('gnombre').value.trim() || 'Mi gama').slice(0, 40), pub = esAdmin() && $('gpub') && $('gpub').checked;
-    var cols = V.fotoGama.slice(0, 150).map(function (c, i) { return [nombre + ' ' + (i + 1), c]; });
+  compartir: function () {
+    if (!S.ses) { toast('Para compartir necesitas entrar con tu cuenta (pestaña Perfil)'); return; }
+    if (V.sucio || esLocal(V.d)) { toast('Guarda antes el diseño'); return; }
+    hojaCompartir();
+  },
+  sicompartir: async function (d) { try { await api('/rest/v1/compartidos', { method: 'POST', body: { diseno: V.d.id, para: d.id } }); await cargarNube(); hojaCompartir(); toast('Compartido con ' + nombreDe(d.id)); } catch (e) { toast('No se ha podido compartir: ' + errTxt(e)); } },
+  nocompartir: async function (d) { try { await api('/rest/v1/compartidos?diseno=eq.' + encodeURIComponent(V.d.id) + '&para=eq.' + encodeURIComponent(d.id), { method: 'DELETE' }); await cargarNube(); hojaCompartir(); } catch (e) { toast(errTxt(e)); } },
+  copiarcod: function () { var c = $('micod').textContent; try { navigator.clipboard.writeText(c).then(function () { toast('Código copiado'); }, function () { toast('Tu código es ' + c); }); } catch (e) { toast('Tu código es ' + c); } },
+  pediramiga: async function () {
+    var c = CF.cod.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length < 4) { toast('Escribe el código de tu amiga'); return; }
+    V.ocupado = true; render();
     try {
-      var id;
-      if (NUBE && S.ses) { id = (await api('/rest/v1/gamas?select=id', { method: 'POST', prefer: 'return=representation', body: { nombre: nombre, colores: cols, publico: !!pub } }))[0].id; S.gamaActiva = id; cerrar(); await cargarNube(); }
-      else { id = 'loc-' + nuevoId(); S.gamas.push(gamaLimpia({ id: id, nombre: nombre, colores: cols })); S.gamaActiva = id; guardar(); cerrar(); }
-      render(); toast('Gama guardada');
-    } catch (err) { toast('No se ha podido guardar: ' + err.message); }
+      var r = await api('/rest/v1/rpc/pedir_amistad', { method: 'POST', body: { cod: c } });
+      var m = { ok: 'Solicitud enviada', no_existe: 'No hay nadie con ese código', tu_misma: 'Ese es tu propio código', ya: 'Ya sois amigas o hay una solicitud pendiente' }[r] || 'Solicitud enviada';
+      if (r === 'ok') CF.cod = ''; toast(m); await cargarNube();
+    } catch (e) { toast(errTxt(e)); }
+    V.ocupado = false; render();
   },
-  pedirborrargama: function () { confirmar('¿Eliminar la gama «' + gamaAct().nombre + '»?', 'Los colores que ya hayas puesto en tus grannys se quedan como están.', 'borrargama', 'Eliminar'); },
-  borrargama: async function () {
-    var g = gamaAct(); cerrar();
-    try {
-      if (!esLocal(g)) await api('/rest/v1/gamas?id=eq.' + encodeURIComponent(g.id), { method: 'DELETE' });
-      S.gamas = S.gamas.filter(function (x) { return x.id !== g.id; }); S.pub.gamas = S.pub.gamas.filter(function (x) { return x.id !== g.id; });
-      S.gamaActiva = 'basicos'; guardar(); render();
-    } catch (err) { toast('No se ha podido eliminar: ' + err.message); }
+  aceptar: async function (d) { try { await api('/rest/v1/amistades?id=eq.' + encodeURIComponent(d.id), { method: 'PATCH', body: { estado: 'aceptada' } }); await cargarNube(); toast('Ya sois amigas'); } catch (e) { toast(errTxt(e)); } },
+  pedirquitar: function (d) { confirmar('¿Quitar a esta amiga?', 'Dejaréis de ver los diseños que os hayáis compartido.', 'quitaramiga', 'Quitar', d.id); },
+  quitaramiga: async function (d) { cerrar(); try { await api('/rest/v1/amistades?id=eq.' + encodeURIComponent(d.id), { method: 'DELETE' }); await cargarNube(); } catch (e) { toast(errTxt(e)); } },
+  entrar: function () { return acceso(false); }, crearcuenta: function () { return acceso(true); },
+  guardarnombre: async function () {
+    var n = CF.nombre.trim().slice(0, 40); if (!n) { toast('Escribe tu nombre'); return; }
+    try { await api('/rest/v1/perfiles?id=eq.' + encodeURIComponent(yo()), { method: 'PATCH', body: { nombre: n } }); CF.nombre = ''; await cargarNube(); toast('Nombre guardado'); } catch (e) { toast(errTxt(e)); }
   },
-  entrar: function () { return acceso(false); },
-  crearcuenta: function () { return acceso(true); },
-  salir: async function () { try { await api('/auth/v1/logout', { method: 'POST' }); } catch (e) {} quitarSesion(); render(); toast('Sesión cerrada'); },
-  pedirborrarcuenta: function () { confirmar('¿Eliminar tu cuenta?', 'Se borrarán tu cuenta y todos tus esquemas y gamas de la nube. No se puede deshacer.', 'borrarcuenta', 'Eliminar mi cuenta'); },
-  borrarcuenta: async function () {
-    cerrar();
-    try { await api('/rest/v1/rpc/eliminar_mi_cuenta', { method: 'POST', body: {} }); quitarSesion(); await cargarNube(); render(); toast('Cuenta eliminada'); }
-    catch (err) { toast('No se ha podido eliminar la cuenta: ' + err.message); }
-  },
-  exportar: async function () {
-    var loc = S.mios.filter(esLocal), fotos = {};
-    for (var i = 0; i < loc.length; i++) { var f = await fotoLeer(loc[i].id); if (okFoto(f)) fotos[loc[i].id] = f; }
-    var datos = { app: 'grannys', v: 1, mios: loc, gamas: S.gamas.filter(esLocal), combos: S.combos, ultimo: S.ultimo, fotos: fotos };
-    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(datos)], { type: 'application/json' }));
-    a.download = 'grannys-copia.json'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 5000);
-  },
-  importar: function () { $('imp').click(); }
+  salir: async function () { try { await api('/auth/v1/logout', { method: 'POST' }); } catch (e) {} quitarSesion(); render(); toast('Sesión cerrada'); cargarNube(); },
+  pedirborrarcuenta: function () { confirmar('¿Eliminar tu cuenta?', 'Se borrarán tu cuenta, tus diseños de la nube y tus amistades. No se puede deshacer.', 'borrarcuenta', 'Eliminar mi cuenta'); },
+  borrarcuenta: async function () { cerrar(); try { await api('/rest/v1/rpc/eliminar_mi_cuenta', { method: 'POST', body: {} }); quitarSesion(); render(); toast('Cuenta eliminada'); cargarNube(); } catch (e) { toast('No se ha podido eliminar la cuenta: ' + errTxt(e)); } }
 };
 async function acceso(alta) {
-  var email = CF.email.trim();
+  var email = CF.email.trim(), nombre = CF.nombre.trim().slice(0, 40);
   if (!/^\S+@\S+\.\S+$/.test(email) || CF.pass.length < 6) { toast('Escribe tu correo y una contraseña de 6 caracteres o más'); return; }
+  if (alta && !nombre) { toast('Escribe tu nombre para crear la cuenta'); return; }
   V.ocupado = true; render();
   try {
-    var r = await fetch(SUPA_URL + '/auth/v1/' + (alta ? 'signup' : 'token?grant_type=password'), { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, password: CF.pass }) });
+    var cuerpo = { email: email, password: CF.pass }; if (alta) cuerpo.data = { nombre: nombre };
+    var r = await fetch(SUPA_URL + '/auth/v1/' + (alta ? 'signup' : 'token?grant_type=password'), { method: 'POST', headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
     var j = await r.json().catch(function () { return {}; });
     if (!r.ok) throw new Error(j.msg || j.error_description || j.message || ('Error ' + r.status));
-    if (j.access_token) {
-      ponerSesion(j); CF.pass = '';
-      try { await subirLocales(); } catch (e) { toast('Has entrado, pero algún esquema no se ha podido subir'); }
-      await cargarNube(); toast('Sesión iniciada');
-    } else toast('Cuenta creada. Confirma el correo que te ha llegado y luego pulsa Entrar');
+    if (j.access_token) { ponerSesion(j); CF.pass = ''; CF.nombre = ''; await trasEntrar(); toast('Sesión iniciada'); }
+    else toast('Cuenta creada. Confirma el correo que te ha llegado y luego pulsa Entrar');
   } catch (err) {
-    var m = err.message;
-    toast(/fetch|network|load/i.test(m) ? 'No se ha podido conectar. Comprueba internet.' : /invalid login/i.test(m) ? 'Correo o contraseña incorrectos' :
-      /not confirmed/i.test(m) ? 'Antes tienes que confirmar el correo que te enviamos' : /already registered/i.test(m) ? 'Ya hay una cuenta con ese correo' : m);
+    var m = errTxt(err);
+    toast(/invalid login/i.test(m) ? 'Correo o contraseña incorrectos' : /not confirmed/i.test(m) ? 'Antes tienes que confirmar el correo que te enviamos' : /already registered/i.test(m) ? 'Ya hay una cuenta con ese correo' : m);
   }
   V.ocupado = false; render();
 }
-async function importarArchivo(archivo) {
+async function trasEntrar() {
+  try { await subirLocales(); } catch (e) { toast('Has entrado, pero algún diseño no se ha podido subir'); }
+  await cargarNube();
+}
+// Al volver del enlace del correo de confirmación, Supabase deja la sesión en la dirección
+async function sesionDeEnlace() {
+  var h = location.hash || ''; if (h.indexOf('access_token=') < 0) return;
+  var p = new URLSearchParams(h.slice(1)), at = p.get('access_token'), rt = p.get('refresh_token');
+  try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  if (!at || !rt || !NUBE) return;
   try {
-    var j = JSON.parse(await archivo.text());
-    if (!j || j.app !== 'grannys') throw new Error('no es una copia de Grannys');
-    var n = 0;
-    (Array.isArray(j.mios) ? j.mios : []).slice(0, 300).forEach(function (e) {
-      var id = String(e.id); if (id.indexOf('loc-') !== 0) return;
-      var o = limpio(e), f = j.fotos && j.fotos[id]; o.tiene_foto = okFoto(f) && f.length < 600000;
-      if (o.tiene_foto) fotoPoner(id, f);
-      S.mios = S.mios.filter(function (x) { return x.id !== id; }); S.mios.push(o); n++;
-    });
-    (Array.isArray(j.gamas) ? j.gamas : []).slice(0, 100).forEach(function (g) {
-      var id = String(g.id); if (id.indexOf('loc-') !== 0) return;
-      S.gamas = S.gamas.filter(function (x) { return x.id !== id; }); S.gamas.push(gamaLimpia(g));
-    });
-    ['combos', 'ultimo'].forEach(function (k) {
-      var o = j[k]; if (!o || typeof o !== 'object') return;
-      Object.keys(o).slice(0, 500).forEach(function (id) {
-        if (k === 'ultimo') { if (Array.isArray(o[id]) && o[id].every(okHex)) S.ultimo[id] = o[id].slice(0, 30); }
-        else if (Array.isArray(o[id])) S.combos[id] = o[id].filter(function (c) { return Array.isArray(c) && c.every(okHex); }).slice(0, 20);
-      });
-    });
-    guardar(); render(); toast('Copia importada: ' + n + ' esquemas');
-  } catch (err) { toast('No se ha podido importar: ' + err.message); }
+    var r = await fetch(SUPA_URL + '/auth/v1/user', { headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + at } });
+    if (!r.ok) return; var u = await r.json(); if (!u || !u.id) return;
+    ponerSesion({ access_token: at, refresh_token: rt, expires_in: +p.get('expires_in') || 3600, user: u }); await trasEntrar(); toast('Cuenta confirmada. Ya has entrado.');
+  } catch (e) {}
 }
 
 document.addEventListener('click', function (e) {
   if (e.target.id === 'velo') { cerrar(); return; }
-  if (e.target.id === 'foto' && V.fotoGama) {
-    var cv = e.target, r = cv.getBoundingClientRect();
-    var x = Math.round((e.clientX - r.left) * cv.width / r.width), y = Math.round((e.clientY - r.top) * cv.height / r.height);
-    var d = cv.getContext('2d').getImageData(Math.max(0, x - 2), Math.max(0, y - 2), 5, 5).data, s = [0, 0, 0], n = d.length / 4;
-    for (var i = 0; i < d.length; i += 4) { s[0] += d[i]; s[1] += d[i + 1]; s[2] += d[i + 2]; }
-    V.fotoGama.push(hex(s[0] / n, s[1] / n, s[2] / n)); pintarTira(); return;
+  var p = e.target.closest && e.target.closest('#lienzo .pt');
+  if (p && V.vista === 'diseno' && !V.ro) {
+    U.v = +p.dataset.v;
+    if (U.tab === 'esq') U.b = +p.dataset.b; else { U.cb = +p.dataset.b; U.ck = U.modo === 'punto' ? +p.dataset.k : null; }
+    render(); return;
   }
-  var g = e.target.closest && e.target.closest('#lienzo [data-vuelta]');
-  if (g) { V.sel = +g.getAttribute('data-vuelta'); render(); return; }
   var b = e.target.closest && e.target.closest('[data-act]');
-  if (!b || b.disabled) return;
-  var f = ACT[b.dataset.act]; if (f) f(b.dataset);
+  if (b && !b.disabled && ACT[b.dataset.act]) ACT[b.dataset.act](b.dataset);
 });
 document.addEventListener('input', function (e) {
   var c = e.target.dataset && e.target.dataset.campo;
-  if (c === 'nombre' && V.ed) { V.ed.nombre = e.target.value; V.ed.sucio = true; }
-  else if (c === 'email') CF.email = e.target.value;
-  else if (c === 'pass') CF.pass = e.target.value;
+  if (c === 'nombre' && V.d) { V.d.nombre = e.target.value; V.sucio = true; }
+  else if (c === 'email') CF.email = e.target.value; else if (c === 'pass') CF.pass = e.target.value;
+  else if (c === 'nombreu') CF.nombre = e.target.value; else if (c === 'cod') CF.cod = e.target.value;
 });
 document.addEventListener('change', function (e) {
-  var c = e.target.dataset && e.target.dataset.campo, a = e.target.files && e.target.files[0];
-  if (c === 'otro') { ponerColor(V.sel, e.target.value); render(); }
-  else if (c === 'publico' && V.ed) { V.ed.publico = e.target.checked; V.ed.sucio = true; }
-  else if (c === 'fotoesq' && a && V.ed) {
-    leerImagen(a).then(function (img) {
-      var d = fotoComprimida(img); if (!d) { toast('Esa foto pesa demasiado. Prueba con una captura de pantalla.'); return; }
-      V.ed.foto = d; V.ed.fotoCambiada = true; V.ed.cargandoFoto = false; V.ed.sucio = true; render();
-    }).catch(function () { toast('No he podido abrir esa imagen'); });
-  }
-  else if (c === 'fotogama' && a) leerImagen(a).then(cargarFotoGama).catch(function () { $('fotozona').innerHTML = '<p class="aviso">No he podido abrir esa imagen. Prueba con una captura de pantalla.</p>'; });
-  else if (c === 'importar' && a) { importarArchivo(a); e.target.value = ''; }
+  var c = e.target.dataset && e.target.dataset.campo; if (!c || !V.d || V.vista !== 'diseno' || V.ro) return;
+  if (c === 'publico') { V.d.publico = e.target.checked; V.sucio = true; return; }
+  var v = vu(); if (!v) return;
+  if (c === 'n') { v.bloques[+e.target.dataset.i].n = Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)); estructura(); }
+  else if (c === 'rep') { v.rep = Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)); estructura(); }
+  else if (c === 'junto') { v.bloques[+e.target.dataset.i].junto = e.target.checked; V.sucio = true; }
+  else if (c === 'esq') { v.bloques.forEach(function (b, i) { b.esq = i === +e.target.dataset.i ? e.target.checked : false; }); V.sucio = true; }
+  else if (c === 'pick') ponerColor(e.target.value);
+  else return;
+  render();
 });
-document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && V.hoja) cerrar(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && V.hoja) cerrar(); if (e.key === 'Enter' && e.target.id === 'hx') ACT.hex(); });
 
-S.mios = S.mios.map(limpio); S.gamas = S.gamas.map(gamaLimpia);
-S.pub = { esquemas: (S.pub.esquemas || []).map(limpio), gamas: (S.pub.gamas || []).map(gamaLimpia) };
-if (!buscarGama(S.gamaActiva)) S.gamaActiva = 'basicos';
+S.locales = (Array.isArray(S.locales) ? S.locales : []).map(function (x) { var d = disenoLimpio(x); return { id: d.id, nombre: d.nombre, vueltas: d.vueltas, mod: d.mod }; }).filter(esLocal);
+S.cache = { disenos: (S.cache.disenos || []).map(disenoLimpio), perfiles: S.cache.perfiles || [], amistades: S.cache.amistades || [], compartidos: S.cache.compartidos || [] };
 render();
-cargarNube();
+sesionDeEnlace().then(cargarNube);
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(function () {});
 </script>
 </body>

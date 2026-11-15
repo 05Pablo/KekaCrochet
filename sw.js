@@ -1,5 +1,5 @@
 // Guarda una copia de la app para que abra sin conexión. Cambia el número al subir un sw.js nuevo.
-var CACHE = 'grannys-1';
+var CACHE = 'grannys-2';
 var ARCHIVOS = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(ARCHIVOS); }).then(function () { return self.skipWaiting(); }));
