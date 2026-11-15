@@ -246,7 +246,52 @@ function icono(id) {
   return a + s + '</svg>';
 }
 
-var SAFRAN = [['Safran 1','#c39598'],['Safran 2','#c05668'],['Safran 4','#678b70'],['Safran 5','#9da2b5'],['Safran 6','#546674'],['Safran 7','#898586'],['Safran 9','#2b3743'],['Safran 10','#c7a45e'],['Safran 11','#d18b35'],['Safran 12','#ce6667'],['Safran 13','#c32d2e'],['Safran 15','#6e093b'],['Safran 16','#19191b'],['Safran 17','#d4d4d6'],['Safran 18','#d0c8b9'],['Safran 19','#ac0a0c'],['Safran 20','#802433'],['Safran 21','#a69180'],['Safran 22','#6f543f'],['Safran 23','#56412b'],['Safran 28','#b94c1f'],['Safran 30','#538d9c'],['Safran 31','#928d46'],['Safran 50','#91a7ae'],['Safran 56','#d5b0a1'],['Safran 57','#a37075'],['Safran 58','#9f8183'],['Safran 59','#91563f'],['Safran 60','#74734f'],['Safran 62','#c3ac5b'],['Safran 63','#6e8077'],['Safran 64','#af9f84'],['Safran 65','#9d9a6c'],['Safran 66','#c79632'],['Safran 67','#bb773f'],['Safran 68','#4a3828'],['Safran 70','#beafc0'],['Safran 71','#e2d8c1'],['Safran 72','#eae6e2'],['Safran 73','#3454a2'],['Safran 74','#bdc7aa'],['Safran 75','#ab4f90'],['Safran 76','#b3d7e3'],['Safran 77','#e2bfc9'],['Safran 78','#4f7144']];
+// DROPS Safran: número y nombre de la carta oficial; tono aproximado sacado de la captura.
+var SAFRAN = [['Safran 17 · Blanco','#d4d4d6'],
+  ['Safran 72 · Tiza','#eae6e2'],
+  ['Safran 18 · Natural','#d0c8b9'],
+  ['Safran 71 · Mazapán','#e2d8c1'],
+  ['Safran 64 · Beige claro','#af9f84'],
+  ['Safran 21 · Cacahuete','#a69180'],
+  ['Safran 22 · Almendra','#6f543f'],
+  ['Safran 68 · Café','#4a3828'],
+  ['Safran 23 · Topo oscuro','#56412b'],
+  ['Safran 07 · Gris','#898586'],
+  ['Safran 10 · Crema de vainilla','#c7a45e'],
+  ['Safran 11 · Rayo de sol','#d18b35'],
+  ['Safran 62 · Limón','#c3ac5b'],
+  ['Safran 66 · Mostaza','#c79632'],
+  ['Safran 67 · Calabaza','#bb773f'],
+  ['Safran 28 · Naranja','#b94c1f'],
+  ['Safran 59 · Arcilla roja','#91563f'],
+  ['Safran 20 · Cereza','#802433'],
+  ['Safran 19 · Rojo','#ac0a0c'],
+  ['Safran 13 · Frambuesa','#c32d2e'],
+  ['Safran 12 · Melocotón','#ce6667'],
+  ['Safran 02 · Rosa','#c05668'],
+  ['Safran 01 · Rosa desierto','#c39598'],
+  ['Safran 77 · Rosa claro','#e2bfc9'],
+  ['Safran 56 · Rosa empolvado','#d5b0a1'],
+  ['Safran 57 · Malva','#a37075'],
+  ['Safran 75 · Magenta','#ab4f90'],
+  ['Safran 15 · Ciruela','#6e093b'],
+  ['Safran 58 · Amatista','#9f8183'],
+  ['Safran 70 · Orquídea dulce','#beafc0'],
+  ['Safran 05 · Lavanda','#9da2b5'],
+  ['Safran 76 · Azul empolvado','#b3d7e3'],
+  ['Safran 06 · Azul vaquero','#546674'],
+  ['Safran 09 · Azul marino','#2b3743'],
+  ['Safran 73 · Azul cobalto','#3454a2'],
+  ['Safran 30 · Turquesa','#538d9c'],
+  ['Safran 50 · Menta','#91a7ae'],
+  ['Safran 74 · Helado de pistacho','#bdc7aa'],
+  ['Safran 63 · Verde mar','#6e8077'],
+  ['Safran 04 · Verde salvia','#678b70'],
+  ['Safran 78 · Verde bosque','#4f7144'],
+  ['Safran 60 · Verde musgo','#74734f'],
+  ['Safran 65 · Pistacho','#9d9a6c'],
+  ['Safran 31 · Verde manzana','#928d46'],
+  ['Safran 16 · Negro','#19191b']];
 var NUBE = /^https:\/\/.+/.test(SUPA_URL) && !!SUPA_KEY;
 var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Marfil','#ece2cf'],['Arena','#d9c2a3'],['Beige','#c9ad8a'],['Gris perla','#cfcfd2'],['Gris','#8e9096'],['Gris marengo','#5a5d63'],['Antracita','#3a3c42'],['Negro','#1e1e22'],
   ['Vainilla','#f6e7a6'],['Limón','#f2dc4e'],['Amarillo','#f5c518'],['Mostaza','#e0a82e'],['Ocre','#c98a1d'],['Melocotón','#f7c59f'],['Albaricoque','#f4a66a'],['Mandarina','#ee8a3c'],['Naranja','#e86a1c'],['Teja','#c5562c'],
@@ -258,7 +303,7 @@ var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Marfil','#ece2cf'],['A
 var CICLO = ['#c79632', '#c05668', '#e2d8c1', '#678b70', '#3454a2', '#ce6667'];
 var GAMAS_FIJAS = [
   { id: 'basicos', nombre: 'Colores básicos', colores: BASICOS },
-  { id: 'safran', nombre: 'DROPS Safran', colores: SAFRAN, nota: 'Tonos aproximados, sacados de la carta de colores de la tienda.' }];
+  { id: 'safran', nombre: 'DROPS Safran', colores: SAFRAN, nota: 'Ordenados por tonos, como en la carta de DROPS. Los colores son aproximados.' }];
 var INCLUIDOS = [
   { id: 'inc-clasico', nombre: 'Granny clásico', vueltas: ['clasico', 'clasico', 'clasico', 'clasico'], colores: ['#c79632', '#c05668', '#e2d8c1', '#678b70'] },
   { id: 'inc-circulo', nombre: 'Círculo a cuadrado', vueltas: ['pa', 'pa_ch', 'pa2_ch', 'cuadrar', 'g3', 'pma'], colores: ['#c79632', '#c05668', '#e2d8c1', '#538d9c', '#3454a2', '#ce6667'] },
