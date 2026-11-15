@@ -156,6 +156,11 @@ label.campo{display:block;font-size:.8rem;font-weight:700;margin:10px 0 4px}
 .bienvenida{text-align:center;padding:18px 0 14px}
 .bienvenida img{border-radius:22px;display:block;margin:0 auto 6px}
 .bienvenida h1{font-size:2rem}
+
+.iniciofila{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.82rem;color:var(--suave)}
+.iniciofila span{flex:1}
+.iniciofila button{flex:none;font-size:.82rem;font-weight:700;background:none;border:1.5px solid var(--acento);color:var(--acento);border-radius:999px;padding:7px 12px}
+.punto-ini{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--acento);margin-right:6px}
 </style>
 </head>
 <body>
@@ -188,7 +193,7 @@ var PUNTOS = [
   { id: 'cang', nombre: 'Cangrejo', ab: 'cangrejo', w: 0.9, alt: 0.42 }
 ];
 var PT = {}; PUNTOS.forEach(function (p) { PT[p.id] = p; });
-var E = 40;
+var E = 40, ANCHO = 0.4;
 
 function pos(r, c, s) {
   s = ((s % 4) + 4) % 4;
@@ -206,25 +211,32 @@ function calcular(vs) {
     var H = 0.3; v.bloques.forEach(function (b) { H = Math.max(H, PT[b.p].alt); });
     var r1 = r + H, c1 = v.forma === 'c' ? 0.9 : 0, rep = Math.max(1, v.rep | 0);
     var wb = v.bloques.map(function (b) { return b.junto ? Math.max(PT[b.p].w, b.n * PT[b.p].w * 0.72) : b.n * PT[b.p].w; });
-    var Wseq = wb.reduce(function (s, x) { return s + x; }, 0), W = Wseq * rep, shift = 0, acc0 = 0;
-    if (v.forma === 'c') for (var i = 0; i < v.bloques.length; i++) { if (v.bloques[i].esq) { shift = acc0 + wb[i] / 2; break; } acc0 += wb[i]; }
+    var Wseq = wb.reduce(function (s, x) { return s + x; }, 0), W = Wseq * rep;
+    var per = (2 * Math.PI * r1) * (1 - c1) + 8 * r1 * c1;
+    // Abierta: cada punto ocupa su ancho natural desde el inicio. Cerrada (o si ya no cabe): se reparten hasta cerrar la vuelta.
+    var cerr = v.cerrada !== false || W * ANCHO >= per, porPeso = W > 0 ? (cerr ? 4 / W : ANCHO / per * 4) : 0;
+    var ini = typeof v.ini === 'number' && isFinite(v.ini) ? v.ini : 0.5, acc0 = 0;
+    if (v.forma === 'c') for (var i = 0; i < v.bloques.length; i++) {
+      if (v.bloques[i].esq) { var sE = ini - (acc0 + wb[i] / 2) * porPeso; ini += Math.round(sE) - sE; break; }   // el conjunto de esquina cae en la esquina más cercana
+      acc0 += wb[i];
+    }
     var items = [], k = 0;
     if (W > 0) for (var rp = 0; rp < rep; rp++) {
       var acc = rp * Wseq;
       v.bloques.forEach(function (b, bi) {
         var cen = acc + wb[bi] / 2, cada = wb[bi] / b.n;
         for (var j = 0; j < b.n; j++) {
-          var s = ((acc + (j + 0.5) * cada - shift) / W) * 4, sb = b.junto ? ((cen - shift) / W) * 4 : s;
+          // se teje hacia la izquierda: la posición va disminuyendo
+          var s = ini - (acc + (j + 0.5) * cada) * porPeso, sb = b.junto ? ini - cen * porPeso : s;
           var B = pos(r, c, sb), TL = pos(r1 - 0.08, c1, s), T2 = pos(r1 - 0.08, c1, s + 0.01), f = Math.min(1, PT[b.p].alt / H);
-          items.push({ k: k, b: bi, p: b.p, B: B, TL: TL, T: [B[0] + (TL[0] - B[0]) * f, B[1] + (TL[1] - B[1]) * f],
+          items.push({ k: k, b: bi, p: b.p, s: s, B: B, TL: TL, T: [B[0] + (TL[0] - B[0]) * f, B[1] + (TL[1] - B[1]) * f],
             ang: Math.atan2(T2[1] - TL[1], T2[0] - TL[0]) * 180 / Math.PI, col: colorDe(v, b, k) });
           k++;
         }
         acc += wb[bi];
       });
     }
-    var per = (2 * Math.PI * r1) * (1 - c1) + 8 * r1 * c1;
-    out.push({ r0: r, r1: r1, c1: c1, items: items, paso: W ? per / W : 1 });
+    out.push({ r0: r, r1: r1, c1: c1, items: items, paso: W ? (cerr ? per / W : ANCHO) : ANCHO, ini: ini });
     r = r1; c = c1;
   });
   return out;
@@ -281,17 +293,17 @@ function simbolo(it, paso) {
 // El mismo punto, dibujado como hilo tejido
 function tejido(it, paso) {
   var g = geo(it), col = it.col, osc = sombra(col, -0.38), cla = sombra(col, 0.22), B = it.B, T = it.T;
-  var w = Math.min(paso * 0.82, 0.42), tr = function (p) { return 'translate(' + F(p[0]) + ' ' + F(p[1]) + ') rotate(' + it.ang.toFixed(1) + ')'; };
-  if (it.p === 'ch') return '<g transform="' + tr(it.TL) + '"><ellipse rx="' + F(Math.min(paso * 0.5, 0.3)) + '" ry="' + F(0.14) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.6"/><path d="M' + F(-0.12) + ' 0H' + F(0.12) + '" stroke="' + osc + '" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></g>';
-  if (it.p === 'pr') return '<g transform="' + tr(mas(B, g.dx, g.dy, 0.1)) + '"><ellipse rx="' + F(0.14) + '" ry="' + F(0.08) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.4"/></g>';
+  var w = Math.min(paso * 0.58, 0.27), tr = function (p) { return 'translate(' + F(p[0]) + ' ' + F(p[1]) + ') rotate(' + it.ang.toFixed(1) + ')'; };
+  if (it.p === 'ch') return '<g transform="' + tr(it.TL) + '"><ellipse rx="' + F(Math.min(paso * 0.46, 0.24)) + '" ry="' + F(0.085) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.1"/><path d="M' + F(-0.09) + ' 0H' + F(0.09) + '" stroke="' + osc + '" stroke-width="1" stroke-linecap="round" opacity=".7"/></g>';
+  if (it.p === 'pr') return '<g transform="' + tr(mas(B, g.dx, g.dy, 0.1)) + '"><ellipse rx="' + F(0.1) + '" ry="' + F(0.06) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1"/></g>';
   if (it.p === 'pina' || it.p === 'pop') {
-    var gr = it.p === 'pop' ? 0.3 : 0.24, an = Math.atan2(g.dy, g.dx) * 180 / Math.PI;
-    return '<g transform="translate(' + F(g.M[0]) + ' ' + F(g.M[1]) + ') rotate(' + an.toFixed(1) + ')"><ellipse rx="' + F(g.L / 2) + '" ry="' + F(gr) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="2"/>' +
+    var gr = it.p === 'pop' ? 0.24 : 0.18, an = Math.atan2(g.dy, g.dx) * 180 / Math.PI;
+    return '<g transform="translate(' + F(g.M[0]) + ' ' + F(g.M[1]) + ') rotate(' + an.toFixed(1) + ')"><ellipse rx="' + F(g.L / 2) + '" ry="' + F(gr) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.3"/>' +
       '<path d="M' + F(-g.L * 0.3) + ' ' + F(-gr * 0.4) + 'Q0 ' + F(-gr * 0.75) + ' ' + F(g.L * 0.3) + ' ' + F(-gr * 0.4) + '" stroke="' + cla + '" stroke-width="2" fill="none" stroke-linecap="round"/>' +
       '<path d="M' + F(-g.L * 0.3) + ' ' + F(gr * 0.35) + 'Q0 ' + F(gr * 0.7) + ' ' + F(g.L * 0.3) + ' ' + F(gr * 0.35) + '" stroke="' + osc + '" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>' +
       (it.p === 'pop' ? '<ellipse rx="' + F(g.L * 0.2) + '" ry="' + F(gr * 0.5) + '" fill="' + cla + '" opacity=".5"/>' : '') + '</g>';
   }
-  if (it.p === 'pic') { var cp = mas(B, g.dx, g.dy, 0.2); return '<circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.13) + '" fill="none" stroke="' + osc + '" stroke-width="6"/><circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.13) + '" fill="none" stroke="' + col + '" stroke-width="3.6"/>'; }
+  if (it.p === 'pic') { var cp = mas(B, g.dx, g.dy, 0.2); return '<circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.11) + '" fill="none" stroke="' + osc + '" stroke-width="4"/><circle cx="' + F(cp[0]) + '" cy="' + F(cp[1]) + '" r="' + F(0.11) + '" fill="none" stroke="' + col + '" stroke-width="2.2"/>'; }
   if (it.p === 'v') {
     var sv = '';
     [-0.2, 0.2].forEach(function (o) { var tt = mas(T, g.nx, g.ny, o); sv += tejido({ p: 'pa', B: B, T: tt, TL: tt, ang: it.ang, col: col }, paso); });
@@ -299,14 +311,14 @@ function tejido(it, paso) {
   }
   if (it.p === 'prd') w *= 1.3; if (it.p === 'prt') w *= 0.8;
   var tope = mas(T, g.dx, g.dy, -0.06), d = lin(B, tope);
-  var s = '<path d="' + d + '" stroke="' + osc + '" stroke-width="' + F(w * 1.18) + '" stroke-linecap="round"/><path d="' + d + '" stroke="' + col + '" stroke-width="' + F(w * 0.9) + '" stroke-linecap="round"/>';
+  var s = '<path d="' + d + '" stroke="' + osc + '" stroke-width="' + F(w * 1.22) + '" stroke-linecap="round"/><path d="' + d + '" stroke="' + col + '" stroke-width="' + F(w * 0.86) + '" stroke-linecap="round"/>';
   var n = (it.p === 'pb' || it.p === 'pbt' || it.p === 'cang') ? 1 : Math.max(1, Math.round(g.L / (it.p === 'pma' ? 0.4 : 0.3)));
   for (var j = 1; j <= n; j++) {
     var u = j / (n + 1), cx = B[0] + (tope[0] - B[0]) * u, cy = B[1] + (tope[1] - B[1]) * u, hh = w * 0.36;
     var ex = g.nx * hh + g.dx * hh * 0.7, ey = g.ny * hh + g.dy * hh * 0.7;
-    s += '<path d="' + lin([cx - ex, cy - ey], [cx + ex, cy + ey]) + '" stroke="' + (j % 2 ? cla : osc) + '" stroke-width="1.5" stroke-linecap="round" opacity=".75"/>';
+    s += '<path d="' + lin([cx - ex, cy - ey], [cx + ex, cy + ey]) + '" stroke="' + (j % 2 ? cla : osc) + '" stroke-width="1" stroke-linecap="round" opacity=".75"/>';
   }
-  var rxh = Math.max(Math.min(paso * 0.6, 0.34), 0.16), cab = '<ellipse rx="' + F(rxh) + '" ry="' + F(it.p === 'cang' ? 0.15 : 0.12) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.5"/>';
+  var rxh = Math.max(Math.min(paso * 0.5, 0.24), 0.12), cab = '<ellipse rx="' + F(rxh) + '" ry="' + F(it.p === 'cang' ? 0.11 : 0.08) + '" fill="' + col + '" stroke="' + osc + '" stroke-width="1.1"/>';
   if (it.p === 'cang') cab += '<path d="M' + F(-rxh * 0.5) + ' ' + F(0.08) + 'L' + F(rxh * 0.1) + ' ' + F(-0.08) + 'M' + F(0) + ' ' + F(0.08) + 'L' + F(rxh * 0.6) + ' ' + F(-0.08) + '" stroke="' + osc + '" stroke-width="1.6" stroke-linecap="round"/>';
   if (it.p === 'pbt') cab += '<path d="M' + F(-rxh * 0.7) + ' ' + F(0.17) + 'H' + F(rxh * 0.7) + '" stroke="' + cla + '" stroke-width="2" stroke-linecap="round"/>';
   if (it.p === 'prd') s += '<path d="' + lin(mas(B, g.nx, g.ny, w * 0.5), mas(tope, g.nx, g.ny, w * 0.5)) + '" stroke="' + osc + '" stroke-width="1.6" opacity=".55"/>';
@@ -314,19 +326,19 @@ function tejido(it, paso) {
 }
 
 // sel: {v, b, k} según lo que haya elegido la usuaria (b y k pueden faltar)
-function dibujar(vs, vista, sel) {
+function dibujar(vs, vista, sel, marca) {
   var cal = calcular(vs), rMax = 0.3, cuad = false;
   cal.forEach(function (c) { rMax = c.r1; if (c.c1 > 0) cuad = true; });
-  var R = Math.round(Math.max(rMax * (cuad ? 1.3 : 1), 2.4) * E + 16);
+  var R = Math.round(Math.max(rMax * (cuad ? 1.3 : 1), 2.4) * E + 26);
   var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + (-R) + ' ' + (-R) + ' ' + (2 * R) + ' ' + (2 * R) + '" role="img" aria-label="' + (vista === 'tej' ? 'Vista del granny tejido' : 'Esquema del granny con símbolos') + '">';
   var c0 = vs.length ? vs[0].color : '#b9a996';
-  s += '<circle r="10" fill="none" stroke="' + (vs.length ? sombra(c0, -0.3) : '#b9a996') + '" stroke-width="' + (vista === 'tej' ? 4 : 1.6) + '"' + (vs.length ? '' : ' stroke-dasharray="5 5"') + '/>';
+  s += '<circle r="10" fill="none" stroke="' + (vs.length ? sombra(c0, -0.3) : '#b9a996') + '" stroke-width="' + (vista === 'tej' ? 3 : 1.6) + '"' + (vs.length ? '' : ' stroke-dasharray="5 5"') + '/>';
   if (!vs.length) s += '<text y="40" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#8a7a70">Anillo de inicio</text>';
   cal.forEach(function (c, vi) {
     var a = '', b = '';
     c.items.forEach(function (it) {
       var es = sel && sel.v === vi && (sel.b == null || sel.b === it.b) && (sel.k == null || sel.k === it.k);
-      var ab = '<g class="pt' + (es ? ' selx' : '') + '" data-v="' + vi + '" data-b="' + it.b + '" data-k="' + it.k + '">' +
+      var ab = '<g class="pt' + (es ? ' selx' : '') + '" data-v="' + vi + '" data-b="' + it.b + '" data-k="' + it.k + '" data-s="' + it.s.toFixed(4) + '">' +
         '<path d="' + lin(it.B, it.TL) + '" stroke="transparent" stroke-width="13" fill="none"/>';
       if (vista === 'tej') {
         var t = tejido(it, c.paso);
@@ -339,6 +351,12 @@ function dibujar(vs, vista, sel) {
     });
     s += '<g>' + a + b + '</g>';
   });
+  if (marca != null && cal[marca]) {   // flecha: dónde empieza la vuelta y hacia dónde se teje
+    var cm = cal[marca], p0 = pos(cm.r1 + 0.24, cm.c1, cm.ini), p1 = pos(cm.r1 + 0.24, cm.c1, cm.ini - Math.min(0.5, 1.1 / cm.r1));
+    var ux = p1[0] - p0[0], uy = p1[1] - p0[1], ul = Math.sqrt(ux * ux + uy * uy) || 1; ux /= ul; uy /= ul;
+    var a1 = [p1[0] - ux * 0.2 - uy * 0.12, p1[1] - uy * 0.2 + ux * 0.12], a2 = [p1[0] - ux * 0.2 + uy * 0.12, p1[1] - uy * 0.2 - ux * 0.12];
+    s += '<g class="inicio" stroke="#c8553d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="#c8553d"><path d="' + lin(p0, p1) + '" fill="none"/><path d="M' + F(p1[0]) + ' ' + F(p1[1]) + 'L' + F(a1[0]) + ' ' + F(a1[1]) + 'L' + F(a2[0]) + ' ' + F(a2[1]) + 'Z"/><circle cx="' + F(p0[0]) + '" cy="' + F(p0[1]) + '" r="4.5"/></g>';
+  }
   return s + '</svg>';
 }
 function iconoPunto(id) {
@@ -419,7 +437,7 @@ var S = (function () {
   return d;
 })();
 var V = { vista: 'inicio', d: null, ro: false, de: '', sucio: false, hoja: null, ocupado: false };
-var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran' };
+var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran', eligeIni: false };
 var CF = { email: '', pass: '', nombre: '', cod: '', modo: 'entrar', aviso: '' };
 var $ = function (id) { return document.getElementById(id); };
 
@@ -437,7 +455,7 @@ function sanear(vs) {
   return (Array.isArray(vs) ? vs : []).slice(0, 40).map(function (v, i) {
     v = v || {};
     var pu = {}; if (v.puntos && typeof v.puntos === 'object') Object.keys(v.puntos).slice(0, 3000).forEach(function (k) { if (/^\d+$/.test(k) && okHex(v.puntos[k])) pu[k] = v.puntos[k].toLowerCase(); });
-    return { forma: v.forma === 'c' ? 'c' : 'r', rep: Math.min(200, Math.max(1, v.rep | 0)), color: okHex(v.color) ? v.color.toLowerCase() : CICLO[i % CICLO.length], puntos: pu,
+    return { forma: v.forma === 'c' ? 'c' : 'r', cerrada: v.cerrada !== false, ini: (typeof v.ini === 'number' && isFinite(v.ini)) ? ((v.ini % 4) + 4) % 4 : 0.5, rep: Math.min(200, Math.max(1, v.rep | 0)), color: okHex(v.color) ? v.color.toLowerCase() : CICLO[i % CICLO.length], puntos: pu,
       bloques: (Array.isArray(v.bloques) ? v.bloques : []).filter(function (b) { return b && typeof b.p === 'string' && PT[b.p]; }).slice(0, 60).map(function (b) {
         return { p: b.p, n: Math.min(200, Math.max(1, b.n | 0)), junto: !!b.junto, esq: !!b.esq, color: okHex(b.color) ? b.color.toLowerCase() : null }; }) };
   });
@@ -517,7 +535,7 @@ function VS() { return V.d.vueltas; }
 function vu() { return VS()[U.v]; }
 function nuevaVuelta(pos) {
   var ant = VS()[pos - 1], forma = ant ? ant.forma : 'r';
-  VS().splice(pos, 0, { forma: forma, rep: forma === 'c' ? 4 : 1, color: CICLO[VS().length % CICLO.length], bloques: [], puntos: {} });
+  VS().splice(pos, 0, { forma: forma, cerrada: false, ini: ant && typeof ant.ini === 'number' ? ant.ini : 0.5, rep: forma === 'c' ? 4 : 1, color: CICLO[VS().length % CICLO.length], bloques: [], puntos: {} });
   U.v = pos; U.b = -1; V.sucio = true;
 }
 function total(v) { return v.bloques.reduce(function (s, b) { return s + b.n; }, 0) * v.rep; }
@@ -545,6 +563,9 @@ function panelEsquema() {
   var v = vu(), h = '<h2>Vueltas</h2>' + chipsVueltas(true);
   h += '<div class="tarj"><h3>Vuelta ' + (U.v + 1) + '</h3><p class="nota">' + (U.v === 0 ? 'La que sale del anillo de inicio.' : 'Se apoya en la vuelta ' + U.v + '.') + '</p>' +
     '<div class="seg" role="group" aria-label="Forma de la vuelta"><button data-act="forma" data-t="r" aria-pressed="' + (v.forma === 'r') + '">Redonda</button><button data-act="forma" data-t="c" aria-pressed="' + (v.forma === 'c') + '">Cuadrada</button></div>';
+  h += '<div class="iniciofila"><span><i class="punto-ini"></i>La flecha roja marca dónde empieza la vuelta. Se teje hacia la izquierda.</span>' +
+    (U.eligeIni ? '<button data-act="noini">Cancelar</button>' : '<button data-act="elegirini">Cambiar el inicio</button>') + '</div>' +
+    (U.eligeIni ? '<p class="aviso">Toca en el dibujo el punto donde quieres que empiece esta vuelta.</p>' : '');
   h += v.bloques.map(function (b, i) {
     var s = '<div class="blo' + (i === U.b ? ' sel' : '') + '"><div class="fila"><button class="paso" data-act="menos" data-i="' + i + '" aria-label="Uno menos">−</button>' +
       '<input class="num" type="number" inputmode="numeric" min="1" max="200" value="' + b.n + '" data-campo="n" data-i="' + i + '" aria-label="Cuántos puntos">' +
@@ -560,6 +581,7 @@ function panelEsquema() {
   h += '<div class="rep"><span>' + (v.forma === 'c' ? 'Esto es un lado. Se repite' : 'Repetir toda la serie') + '</span><button class="paso" data-act="repmenos" aria-label="Una repetición menos">−</button>' +
     '<input class="num" type="number" inputmode="numeric" min="1" max="200" value="' + v.rep + '" data-campo="rep" aria-label="Veces que se repite la serie"><button class="paso" data-act="repmas" aria-label="Una repetición más">+</button><span>' + (v.rep === 1 ? 'vez' : 'veces') + '</span></div>';
   h += '<div class="resumen"><b>Vuelta ' + (U.v + 1) + ':</b> ' + esc(resumen(v)) + '</div>';
+  h += '<label class="marca" style="margin-top:10px"><input type="checkbox" data-campo="cerrada"' + (v.cerrada !== false ? ' checked' : '') + '><span><b>Vuelta cerrada</b>: los puntos se reparten hasta dar la vuelta entera. Sin marcar, se van poniendo uno tras otro desde el inicio.</span></label>';
   h += '<button class="grande sec" data-act="cerrarv"' + (v.bloques.length ? '' : ' disabled') + '>' + (U.v === VS().length - 1 ? 'Cerrar la vuelta y empezar la ' + (U.v + 2) : 'Ir a la vuelta ' + (U.v + 2)) + '</button>';
   h += '<div class="enl"><button data-act="insertar">Intercalar una vuelta antes de esta</button><button data-act="quitarv">Eliminar esta vuelta</button></div></div>';
   return h;
@@ -604,7 +626,7 @@ function vistaInicio() {
   return h;
 }
 function visor() {
-  return '<div class="visor"><div id="lienzo">' + dibujar(VS(), U.vista, selDibujo()) + '</div><div class="seg" role="group" aria-label="Vista"><button data-act="vista" data-t="sim" aria-pressed="' + (U.vista === 'sim') + '">Símbolos</button>' +
+  return '<div class="visor"><div id="lienzo">' + dibujar(VS(), U.vista, selDibujo(), (!V.ro && U.tab === 'esq' && VS().length) ? U.v : null) + '</div><div class="seg" role="group" aria-label="Vista"><button data-act="vista" data-t="sim" aria-pressed="' + (U.vista === 'sim') + '">Símbolos</button>' +
     '<button data-act="vista" data-t="tej" aria-pressed="' + (U.vista === 'tej') + '">Tejido</button></div></div>';
 }
 function vistaDiseno() {
@@ -677,7 +699,7 @@ function cerrar() { V.hoja = null; $('velo').hidden = true; $('cuerpo').innerHTM
 function confirmar(titulo, texto, accion, boton, id) {
   hoja(titulo, '<p>' + esc(texto) + '</p><button class="grande rojo" data-act="' + accion + '"' + (id ? ' data-id="' + esc(id) + '"' : '') + '>' + esc(boton) + '</button><button class="grande sec" data-act="cerrar">Cancelar</button>');
 }
-function abrirEditor(d, ro) { V.d = d; V.ro = !!ro; V.sucio = false; U.tab = 'esq'; U.v = 0; U.b = -1; U.cb = null; U.ck = null; U.modo = 'vuelta'; U.vista = ro ? 'tej' : 'sim'; ir('diseno'); }
+function abrirEditor(d, ro) { V.d = d; V.ro = !!ro; V.sucio = false; U.eligeIni = false; U.tab = 'esq'; U.v = 0; U.b = -1; U.cb = null; U.ck = null; U.modo = 'vuelta'; U.vista = ro ? 'tej' : 'sim'; ir('diseno'); }
 function hojaCompartir() {
   var d = V.d, am = amigas(), ya = {};
   S.cache.compartidos.forEach(function (c) { if (c.diseno === d.id && c.de === yo()) ya[c.para] = 1; });
@@ -706,13 +728,15 @@ var ACT = {
     try { await api('/rest/v1/compartidos?diseno=eq.' + encodeURIComponent(V.d.id) + '&para=eq.' + encodeURIComponent(yo()), { method: 'DELETE' }); V.d = null; await cargarNube(); ir('inicio'); }
     catch (e) { toast(errTxt(e)); }
   },
-  tab: function (d) { U.tab = d.t; U.b = -1; U.cb = null; U.ck = null; render(); },
+  tab: function (d) { U.tab = d.t; U.b = -1; U.cb = null; U.ck = null; U.eligeIni = false; render(); },
   vista: function (d) { U.vista = d.t; render(); },
   primera: function () { nuevaVuelta(0); render(); },
   ejemplo: function () { V.d.vueltas = ejemplo(); U.v = 0; U.b = -1; V.sucio = true; render(); },
-  irv: function (d) { U.v = +d.i; U.b = -1; U.cb = null; U.ck = null; render(); },
+  irv: function (d) { U.v = +d.i; U.b = -1; U.cb = null; U.ck = null; U.eligeIni = false; render(); },
   otra: function () { nuevaVuelta(VS().length); render(); },
-  cerrarv: function () { if (U.v === VS().length - 1) nuevaVuelta(VS().length); else { U.v++; U.b = -1; } render(); },
+  cerrarv: function () { vu().cerrada = true; V.sucio = true; if (U.v === VS().length - 1) nuevaVuelta(VS().length); else { U.v++; U.b = -1; } U.eligeIni = false; render(); },
+  elegirini: function () { U.eligeIni = true; render(); window.scrollTo(0, 0); },
+  noini: function () { U.eligeIni = false; render(); },
   insertar: function () { nuevaVuelta(U.v); render(); },
   quitarv: function () { VS().splice(U.v, 1); U.b = -1; U.v = Math.max(0, Math.min(U.v, VS().length - 1)); V.sucio = true; render(); },
   forma: function (d) { var v = vu(); if (v.forma === d.t) return; v.forma = d.t; if (d.t === 'c' && v.rep === 1) v.rep = 4; V.sucio = true; render(); },
@@ -830,6 +854,7 @@ document.addEventListener('click', function (e) {
   if (e.target.id === 'velo') { cerrar(); return; }
   var p = e.target.closest && e.target.closest('#lienzo .pt');
   if (p && V.vista === 'diseno' && !V.ro) {
+    if (U.eligeIni && U.tab === 'esq') { var si = parseFloat(p.dataset.s); if (isFinite(si)) { vu().ini = ((si % 4) + 4) % 4; V.sucio = true; } U.eligeIni = false; render(); return; }
     U.v = +p.dataset.v;
     if (U.tab === 'esq') U.b = +p.dataset.b; else { U.cb = +p.dataset.b; U.ck = U.modo === 'punto' ? +p.dataset.k : null; }
     render(); return;
@@ -849,6 +874,7 @@ document.addEventListener('change', function (e) {
   var v = vu(); if (!v) return;
   if (c === 'n') { v.bloques[+e.target.dataset.i].n = Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)); estructura(); }
   else if (c === 'rep') { v.rep = Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)); estructura(); }
+  else if (c === 'cerrada') { v.cerrada = e.target.checked; V.sucio = true; }
   else if (c === 'junto') { v.bloques[+e.target.dataset.i].junto = e.target.checked; V.sucio = true; }
   else if (c === 'esq') { v.bloques.forEach(function (b, i) { b.esq = i === +e.target.dataset.i ? e.target.checked : false; }); V.sucio = true; }
   else if (c === 'pick') ponerColor(e.target.value);
