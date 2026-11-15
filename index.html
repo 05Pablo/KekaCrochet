@@ -108,8 +108,8 @@ input[type=file]{max-width:100%;font-size:.86rem;margin-top:6px}
 // ====== CONEXIÓN CON SUPABASE ======
 // Pega aquí la "Project URL" y la clave "anon / publishable" (NUNCA la service_role).
 // Si se dejan vacías, la app funciona igual pero todo se guarda solo en el dispositivo.
-var SUPA_URL = '';
-var SUPA_KEY = '';
+var SUPA_URL = 'https://vclwceetlfvyjiarvqvy.supabase.co';
+var SUPA_KEY = 'sb_publishable_DQGH3cnjbCmQ-Uq-yulIAg_07do4Q94';
 // ===================================
 // Motor: a partir de una lista de TIPOS de vuelta calcula los puntos y dibuja el granny tejido.
 var PESO = { pa: 1, pma: 1, pb: 0.9, ch: 0.8, sp: 0.55 };
@@ -339,7 +339,8 @@ async function tok() {
 }
 async function api(ruta, opt) {
   opt = opt || {};
-  var t = await tok(), h = { apikey: SUPA_KEY, Authorization: 'Bearer ' + (t || SUPA_KEY), 'Content-Type': 'application/json' };
+  var t = await tok(), h = { apikey: SUPA_KEY, 'Content-Type': 'application/json' };
+  if (t) h.Authorization = 'Bearer ' + t;
   if (opt.prefer) h.Prefer = opt.prefer;
   var r = await fetch(SUPA_URL + ruta, { method: opt.method || 'GET', headers: h, body: opt.body ? JSON.stringify(opt.body) : undefined });
   var txt = await r.text(), j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
