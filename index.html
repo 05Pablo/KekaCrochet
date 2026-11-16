@@ -223,6 +223,16 @@ label.campo{display:block;font-size:.8rem;font-weight:700;margin:10px 0 4px}
 .aviso.sel{margin:8px 0 0;font-weight:600;text-align:center}
 .blo .extra .lnk{text-align:left;font-size:.8rem}
 .ops .mini+.mini{margin-top:0}
+
+#lienzo{overflow:hidden}
+#lienzo svg{transform-origin:50% 50%}
+#lienzo.girando{touch-action:none;cursor:grab;outline:2px dashed var(--acento);outline-offset:-4px}
+.vfila{display:flex;align-items:center;justify-content:center;gap:8px}
+.vfila .seg{flex:0 1 260px;margin:0}
+.vfila .giro{flex:none;width:40px;height:36px;border-radius:10px;border:1.5px solid var(--borde);background:var(--tarjeta);font-size:1.15rem;padding:0;line-height:1}
+.vfila.peq{gap:18px;margin-top:4px;font-size:.8rem}
+.vfila.peq .lnk{font-size:.8rem}
+.grupo.patron{border-color:#7b4fb0;background:rgba(123,79,176,.05)}
 </style>
 </head>
 <body>
@@ -308,84 +318,195 @@ function serieE(v) {
 }
 function esNum(x) { return typeof x === 'number' && isFinite(x); }
 function distCirc(a, b) { return Math.abs((((a - b + 2) % 4) + 4) % 4 - 2); }
+function mod(a, n) { return ((a % n) + n) % n; }
+function tk(it) { return it.p + (it.rx ? '~' : ''); }
+// Los puntos de una vuelta sobre los que se puede tejer la siguiente, en orden de tejido (una disminución cuenta como uno)
+function topsDe(items) {
+  var o = [];
+  items.forEach(function (it) { if (it.dis && !it.barra && o.length) { it.ti = o.length - 1; return; } it.ti = o.length; o.push(it); });
+  return o;
+}
+function nombreSec(tops, k0, n) { var a = []; for (var j = 0; j < n && j < 8; j++) a.push(PT[tops[mod(k0 + j, tops.length)].p].ab); return a.join(', ') + (n > 8 ? '…' : ''); }
+// Cada cuántos puntos de la vuelta anterior se repite un patrón que usa los puntos k0..k0+span-1, o null si la vuelta anterior no se repite igual
+function periodo(tops, k0, span, veces) {
+  var N = tops.length; if (!N || span < 1) return null;
+  if (veces < 2) return span;
+  for (var m = span; m * veces <= N; m++) {
+    var ok = true;
+    for (var t = 1; t < veces && ok; t++) for (var j = 0; j < m && ok; j++) if (tk(tops[mod(k0 + j, N)]) !== tk(tops[mod(k0 + t * m + j, N)])) ok = false;
+    if (ok) return m;
+  }
+  return null;
+}
 function calcular(vs) {
   var r = 0.3, c = 0, out = [];
   vs.forEach(function (v) {
     var H = 0.3; v.bloques.forEach(function (b) { H = Math.max(H, PT[esPicot(b) ? 'pic' : b.p].alt); });
     var r1 = r + H, c1 = v.forma === 'c' ? 0.9 : 0, rep = Math.max(1, v.rep | 0);
-    var wb = v.bloques.map(anchoBloque), ser = serieE(v), zonas = v.zonas || {}, gop = v.gopts || {};
+    var wb = v.bloques.map(anchoBloque), ser = serieE(v), zonas = v.zonas || {}, gop = v.gopts || {}, grs = v.grupos || {};
     var per = (2 * Math.PI * r1) * (1 - c1) + 8 * r1 * c1, nat = ANCHO / per * 4;   // nat: lo que avanza un punto de ancho normal
-    var giro = function (rp) { return rep > 1 ? rp * 4 / rep : 0; };               // al repetir la serie, lo «fijado» gira con ella
-    var L = [], Wtot = 0, hayFijo = false;
-    for (var rp = 0; rp < rep && L.length < 3000; rp++) ser.forEach(function (e) { L.push({ bi: e.bi, g: e.g, t: e.t, rp: rp, w: wb[e.bi] }); Wtot += wb[e.bi]; });
-    // Tramos: libres, o fijados a puntos de la vuelta anterior (zona de varios puntos, o un punto concreto «V.A.»)
-    var tramos = [], i = 0;
-    while (i < L.length) {
-      var e = L[i], b = v.bloques[e.bi], z = b.zid && zonas[b.zid] ? zonas[b.zid] : null, j = i + 1, tr;
-      if (z) { while (j < L.length && L[j].rp === e.rp && v.bloques[L[j].bi].zid === b.zid) j++; tr = { tipo: 'z', a: z.s0 - giro(e.rp), span: z.s0 - z.s1 }; }
-      else if (e.g && gop[e.g] && esNum(gop[e.g].va)) { while (j < L.length && L[j].rp === e.rp && L[j].g === e.g && L[j].t === e.t) j++; tr = { tipo: 'va', va: gop[e.g].va - giro(e.rp), veces: e.t }; }
-      else if (esNum(b.va)) tr = { tipo: 'va', va: b.va - giro(e.rp), veces: 0 };
-      else tr = { tipo: 'l' };
-      tr.i0 = i; tr.i1 = j; tr.W = 0; for (var q = i; q < j; q++) tr.W += L[q].w;
-      if (tr.tipo === 'va') { tr.span = tr.W * nat; tr.base = tr.va - tr.veces * tr.span; tr.a = tr.base + tr.span / 2; }
-      if (tr.tipo !== 'l') hayFijo = true;
-      tramos.push(tr); i = j;
-    }
-    // Abierta: cada punto ocupa su ancho natural. Cerrada (o si ya no cabe): se reparten hasta cerrar, respetando lo fijado.
-    var cerr = v.cerrada !== false || Wtot * ANCHO >= per;
+    var prevR = out.length ? out[out.length - 1] : null, tops = prevR ? prevR.tops : [], N = tops.length, arcsP = prevR ? prevR.arcos : [], NA = arcsP.length;
     var ini = esNum(v.ini) ? v.ini : 0.5;
-    if (v.forma === 'c' && !hayFijo && Wtot > 0) {
-      var pp = cerr ? 4 / Wtot : nat, acc0 = 0;
-      for (i = 0; i < ser.length; i++) { if (v.bloques[ser[i].bi].esq) { var sE = ini - (acc0 + wb[ser[i].bi] / 2) * pp; ini += Math.round(sE) - sE; break; } acc0 += wb[ser[i].bi]; }   // el conjunto de esquina cae en la esquina más cercana
+    var L = [], Wtot = 0;
+    for (var rp = 0; rp < rep && L.length < 3000; rp++) ser.forEach(function (e) { L.push({ bi: e.bi, g: e.g, t: e.t, rp: rp, w: wb[e.bi] }); Wtot += wb[e.bi]; });
+    var usos = function (b) { return (b.p === 'ch' || esPicot(b)) ? 0 : b.n; };   // cuántos puntos de la vuelta anterior usa un conjunto
+
+    // ---------- 1) Sobre qué punto de la vuelta anterior va cada conjunto ----------
+    var idxDeS = function (s) { var m = null, md = 9; tops.forEach(function (t, i) { var d = distCirc(t.s, s); if (d < md) { md = d; m = i; } }); return m; };
+    var arcoDeS = function (s) { var m = null, md = 9; arcsP.forEach(function (a, i) { var d = distCirc((a.s0 + a.s1) / 2, s); if (d < md) { md = d; m = i; } }); return m; };
+    var zk = {};
+    if (N) Object.keys(zonas).forEach(function (z) {
+      var o = zonas[z];
+      if (esNum(o.k0) && esNum(o.k1)) { zk[z] = { k0: mod(o.k0 | 0, N), n: Math.min(N, mod((o.k1 | 0) - (o.k0 | 0), N) + 1) }; return; }
+      var den = []; tops.forEach(function (t, i) { if (enZona(o, t.s)) den.push(i); });   // zonas guardadas antes por ángulo
+      if (!den.length) return;
+      var k0 = den.filter(function (i) { return den.indexOf(mod(i - 1, N)) < 0; })[0]; zk[z] = { k0: k0 == null ? den[0] : k0, n: den.length };
+    });
+    var runs = {};   // tramos que comparten unos puntos elegidos o un mismo arco
+    L.forEach(function (e, i) {
+      var b = v.bloques[e.bi], go = e.g ? (gop[e.g] || {}) : {}, U = usos(b);
+      if (e.g && go.arco1) { var ka = 'A' + e.g + '|' + e.rp + '|' + e.t, oa = runs[ka] || (runs[ka] = { U: 0, NC: 0 }); e.ao = oa.U; oa.U += U; e.aci = oa.NC; if (U) oa.NC++; e.arun = oa; }
+      else if (b.dentro) { e.ao = 0; e.aci = 0; e.arun = { U: U, NC: U ? 1 : 0 }; }
+      if (b.zid && zk[b.zid]) { var kz = 'Z' + b.zid + '|' + e.rp + '|' + (e.g || '') + '|' + e.t, oz = runs[kz] || (runs[kz] = { U: 0 }); e.zo = oz.U; oz.U += U; oz.ult = i; e.zrun = oz; }
+    });
+    var mS = rep > 1 && N ? Math.round(N / rep) : 0, aS = rep > 1 && NA ? Math.round(NA / rep) : 0;
+    var pc = null, arcCur = null, cons = {}, expl = {}, pasos = {}, instArc = {}, pat = {};
+    var arcoSig = function () {   // el siguiente arco, por orden de tejido
+      if (!NA) return null;
+      if (pc != null) { var m = null, md = 1e9; arcsP.forEach(function (a, i) { var d = mod(a.k0 - pc - 1, N); if (d < md) { md = d; m = i; } }); return m; }
+      if (arcCur != null) return mod(arcCur + 1, NA);
+      var m2 = null, md2 = 9; arcsP.forEach(function (a, i) { var d = mod(ini - (a.s0 + a.s1) / 2 + 0.05, 4); if (d < md2) { md2 = d; m2 = i; } }); return m2;
+    };
+    var pasoDe = function (g, rp) {   // cada cuántos puntos de la vuelta anterior se repite un grupo
+      var key = g + '|' + rp; if (key in pasos) return pasos[key];
+      var c0 = cons[g + '|' + rp + '|0'] || [], veces = Math.min(200, Math.max(1, grs[g] | 0 || 1)), res = null;
+      if (c0.length && N) {
+        var k0 = c0[0], span = 1; c0.forEach(function (j) { span = Math.max(span, mod(j - k0, N) + 1); });
+        res = periodo(tops, k0, span, veces);
+        if (rp === 0 && expl[g]) pat[g] = res ? { ok: true, m: res } : { ok: false, msg: span * veces > N ?
+          'La vuelta anterior tiene ' + N + ' puntos y cada repetición usa ' + span + ', así que solo cabe ' + Math.floor(N / span) + (Math.floor(N / span) === 1 ? ' vez.' : ' veces.') :
+          'Cada repetición se teje sobre «' + nombreSec(tops, k0, span) + '» de la vuelta anterior, pero después no vuelve a aparecer esa misma secuencia (lo siguiente es «' + nombreSec(tops, k0 + span, span) + '»).' };
+      }
+      pasos[key] = res; return res;
+    };
+    L.forEach(function (e, i) {
+      var b = v.bloques[e.bi], go = e.g ? (gop[e.g] || {}) : {}, U = usos(b), key = e.g ? e.g + '|' + e.rp + '|' + e.t : null;
+      var off = e.rp * mS, js = [], arc = null, ex = false, z;
+      var desp = function (k) {   // un punto elegido a mano, llevado a la repetición que toca
+        if (e.t > 0 && e.g) { var m = pasoDe(e.g, e.rp); if (m == null) return pc != null ? mod(pc + 1, N) : mod(k + off, N); return mod(k + off + e.t * m, N); }
+        return mod(k + off, N);
+      };
+      if (N) {
+        if (e.g && go.arco1 && NA) {
+          if (!(key in instArc)) { var a0 = esNum(go.arcK) ? mod(go.arcK | 0, NA) : esNum(go.arcoS) ? arcoDeS(go.arcoS) : null; instArc[key] = a0 != null ? mod(a0 + e.rp * aS + e.t, NA) : arcoSig(); }
+          arc = arcsP[instArc[key]]; ex = esNum(go.arcK) || esNum(go.arcoS);
+          if (e.t === 0 && e.rp === 0 && (grs[e.g] | 0) > NA) pat[e.g] = { ok: false, msg: 'La vuelta anterior solo tiene ' + NA + (NA === 1 ? ' arco.' : ' arcos.') };
+        } else if (e.g && (esNum(go.vk) || esNum(go.va))) {
+          var A = desp(esNum(go.vk) ? mod(go.vk | 0, N) : idxDeS(go.va)); ex = true; e.uno = true;
+          for (var q = 0; q < U; q++) js.push(A);
+          e.Aun = A;
+        } else if (b.dentro && NA) {
+          var ae = esNum(b.arcK) ? mod(b.arcK | 0, NA) : esNum(b.arcoS) ? arcoDeS(b.arcoS) : null;
+          arc = arcsP[ae != null ? mod(ae + e.rp * aS + (e.g ? e.t : 0), NA) : arcoSig()]; ex = ae != null;
+        } else if (b.zid && (z = zk[b.zid])) {
+          var run = e.zrun; ex = true;
+          if (!('z0' in run)) run.z0 = desp(z.k0);
+          for (var q2 = 0; q2 < U; q2++) js.push(mod(run.z0 + Math.min(z.n - 1, Math.floor((e.zo + q2 + 0.5) * z.n / Math.max(1, run.U))), N));
+          if (i === run.ult) e.pcFin = mod(run.z0 + z.n - 1, N);
+          if (key && e.t === 0) { var cz = cons[key] || (cons[key] = []); for (var q5 = 0; q5 < z.n; q5++) cz.push(mod(run.z0 + q5, N)); }
+        } else if (esNum(b.vk) || esNum(b.va)) {
+          var A2 = desp(esNum(b.vk) ? mod(b.vk | 0, N) : idxDeS(b.va)); ex = true;
+          for (var q3 = 0; q3 < U; q3++) js.push(mod(A2 + q3, N));
+        } else if (pc != null && U) {   // después de un punto fijado, se sigue en los siguientes puntos de la vuelta anterior
+          for (var q4 = 0; q4 < U; q4++) js.push(mod(pc + 1 + q4, N));
+        }
+      }
+      e.js = js; e.arc = arc;
+      if (js.length) pc = e.uno ? e.Aun : js[js.length - 1];
+      if (e.pcFin != null) pc = e.pcFin;
+      if (arc) { pc = arc.k1; arcCur = arcsP.indexOf(arc); }
+      if (key && e.t === 0) {
+        var cc = cons[key] || (cons[key] = []);
+        js.forEach(function (j) { cc.push(j); });
+        if (arc) for (var qa = 0; qa <= mod(arc.k1 - arc.k0, N); qa++) cc.push(mod(arc.k0 + qa, N));
+        if (ex) expl[e.g] = true;
+      }
+    });
+    Object.keys(grs).forEach(function (g) { if ((grs[g] | 0) > 1 && !pat[g]) pasoDe(g, 0); });
+
+    // ---------- 2) Dónde queda arriba cada conjunto ----------
+    var tgt = function (e) {
+      if (e.js.length) { var s0 = tops[e.js[0]].s, acc = 0; e.js.forEach(function (j) { var d = mod(s0 - tops[j].s, 4); if (d > 2) d -= 4; acc += s0 - d; }); return acc / e.js.length; }
+      if (e.arc) return (e.arc.s0 + e.arc.s1) / 2;
+      return null;
+    };
+    var BL = [];
+    L.forEach(function (e) {
+      var go = e.g ? gop[e.g] : null, comp = e.g && (e.uno || (go && go.arco1 && e.arc)) ? e.g + '|' + e.rp + '|' + e.t : null, last = BL[BL.length - 1];
+      if (comp && last && last.key === comp) { last.els.push(e); last.w += e.w * nat; if (last.target == null) last.target = tgt(e); return; }
+      BL.push({ key: comp, els: [e], w: e.w * nat, target: tgt(e) });
+    });
+    var hayT = BL.some(function (x) { return x.target != null; });
+    if (v.forma === 'c' && !hayT && Wtot > 0) {   // el conjunto de esquina cae en la esquina más cercana
+      var pp = (v.cerrada !== false || Wtot * ANCHO >= per) ? 4 / Wtot : nat, acc0 = 0;
+      for (var ii = 0; ii < ser.length; ii++) { if (v.bloques[ser[ii].bi].esq) { var sE = ini - (acc0 + wb[ser[ii].bi] / 2) * pp; ini += Math.round(sE) - sE; break; } acc0 += wb[ser[ii].bi]; }
     }
-    var cur = ini, pend = [], pendW = 0;
-    var soltar = function (dist) {   // coloca los conjuntos libres pendientes; en vuelta cerrada los ajusta al hueco que hay
-      var esc = (cerr && dist > 0.02 && pendW > 0) ? dist / pendW : nat;
-      pend.forEach(function (q) { L[q].sA = cur; L[q].sB = cur - L[q].w * esc; cur = L[q].sB; });
+    var cerr = v.cerrada !== false || Wtot * ANCHO >= per;
+    var cur = ini, startS = null, pend = [], pendW = 0;
+    var soltar = function (hueco) {   // los conjuntos libres rellenan el hueco hasta el siguiente fijado
+      var esc = (cerr && pendW > 0 && hueco > 0.02) ? Math.max(0.5, hueco / pendW) : 1;
+      pend.forEach(function (bk) { bk.sA = cur; bk.sB = cur - bk.w * esc; cur = bk.sB; });
       pend = []; pendW = 0;
     };
-    tramos.forEach(function (tr) {
-      if (tr.tipo === 'l') { pend.push(tr.i0); pendW += L[tr.i0].w; return; }
-      var d = (((cur - tr.a) % 4) + 4) % 4; if (d > 3.4) d -= 4;
-      var a2 = cur - d, az = 0; soltar(d);
-      for (var q = tr.i0; q < tr.i1; q++) { L[q].sA = a2 - az / tr.W * tr.span; az += L[q].w; L[q].sB = a2 - az / tr.W * tr.span; if (tr.tipo === 'va') L[q].base = pos(r, c, tr.base); }
-      cur = a2 - tr.span;
+    BL.forEach(function (bk, i) {
+      if (bk.target == null) { if (startS == null) startS = cur; pend.push(bk); pendW += bk.w; return; }
+      var ideal = bk.target + bk.w / 2;
+      if (startS == null) { cur = ideal; startS = ideal; }
+      var d = mod(cur - ideal, 4); if (d > 3.5) d -= 4;   // d < 0: se montaría con lo anterior
+      var idealU = cur - d; soltar(d);
+      bk.sA = Math.min(cur, idealU); bk.sB = bk.sA - bk.w; cur = bk.sB;
     });
-    soltar(4 - (ini - cur));
-    // Grupos que van enteros dentro de UN arco de la vuelta anterior
-    var prev = out.length ? out[out.length - 1].arcos : [], inst = {};
-    var arcoCerca = function (s) { var den = null, md = 9; prev.forEach(function (a) { var d = distCirc((a.s0 + a.s1) / 2, s); if (d < md) { md = d; den = a; } }); return den; };
-    if (prev.length) {
-      L.forEach(function (e) { if (e.g && gop[e.g] && gop[e.g].arco1 && e.sA != null) { var k = e.g + '|' + e.t + '|' + e.rp, o = inst[k] || (inst[k] = { a: e.sA, b: e.sB, W: 0, rp: e.rp, g: e.g }); o.a = Math.max(o.a, e.sA); o.b = Math.min(o.b, e.sB); o.W += e.w; } });
-      Object.keys(inst).forEach(function (k) { var o = inst[k], go = gop[o.g]; o.den = arcoCerca(esNum(go.arcoS) ? go.arcoS - giro(o.rp) : (o.a + o.b) / 2); o.ac = 0; });
-      L.forEach(function (e) { var o = e.g ? inst[e.g + '|' + e.t + '|' + e.rp] : null; if (o && o.den) { e.den = o.den; e.u0 = 0.12 + 0.76 * o.ac / o.W; o.ac += e.w; e.u1 = 0.12 + 0.76 * o.ac / o.W; } });
-    }
+    if (startS == null) startS = ini;
+    soltar(cerr ? cur - (startS - 4) : 0);
+    var usado = startS - cur;
+    if (cerr && usado > 4.0001) { var fz = 4 / usado; BL.forEach(function (bk) { bk.sA = startS - (startS - bk.sA) * fz; bk.sB = startS - (startS - bk.sB) * fz; }); }
+    BL.forEach(function (bk) {
+      var esc = bk.w > 0 ? (bk.sA - bk.sB) / bk.w : 1, a = bk.sA;
+      bk.els.forEach(function (e) { e.sA = a; e.sB = a - e.w * nat * esc; a = e.sB; });
+    });
+
+    // ---------- 3) Los puntos ----------
     var items = [], k = 0, arcos = [];
-    // Coloca un conjunto entre sA y sB (se teje hacia la izquierda: la posición va disminuyendo)
     var poner = function (e) {
-      var bi = e.bi, sA = e.sA, sB = e.sB, b = v.bloques[bi], arc = null, den = e.den || null, u0 = 0.2, u1 = 0.8, sC = (sA + sB) / 2, tipo = b.p, base = e.base || null;
+      var bi = e.bi, sA = e.sA, sB = e.sB, b = v.bloques[bi], arc = null, sC = (sA + sB) / 2, tipo = b.p;
       if (tipo === 'ch' && b.arco && b.n >= 2 && !esPicot(b)) {   // cadenetas dibujadas como arco elevado
-        arc = { s0: sA, s1: sB, h: Math.min(0.85, 0.2 + 0.08 * b.n), r: r1 - 0.08, c: c1, largo: 0 };
+        arc = { s0: sA, s1: sB, h: Math.min(0.85, 0.2 + 0.08 * b.n), r: r1 - 0.08, c: c1, largo: 0, its: [] };
         for (var q = 0, pa = puntoArco(arc, 0); q < 12; q++) { var pb = puntoArco(arc, (q + 1) / 12); arc.largo += Math.sqrt((pb[0] - pa[0]) * (pb[0] - pa[0]) + (pb[1] - pa[1]) * (pb[1] - pa[1])); pa = pb; }
         arcos.push(arc);
       }
-      if (den) { u0 = e.u0; u1 = e.u1; }
-      else if (b.dentro && prev.length) den = arcoCerca(esNum(b.arcoS) ? b.arcoS - giro(e.rp) : sC);   // dentro del arco elegido o del más cercano
+      var comparte = e.uno && (e.arun ? e.arun.U : 1) > 1;
       var nuevo = function (p, s, B, fan) {
         var TL = pos(r1 - 0.08, c1, s), T2 = pos(r1 - 0.08, c1, s + 0.01), f = Math.min(1, PT[p].alt / H);
         var it = { k: k, b: bi, p: p, s: s, B: B, TL: TL, T: [B[0] + (TL[0] - B[0]) * f, B[1] + (TL[1] - B[1]) * f],
           ang: Math.atan2(T2[1] - TL[1], T2[0] - TL[0]) * 180 / Math.PI, col: colorDe(v, b, k), hebra: (p !== 'ch' && p !== 'pic' && (b.hebra === 'd' || b.hebra === 't')) ? b.hebra : null };
         if (fan) it.fan = true;
+        if (arc) arc.its.push(it);
         items.push(it); k++; return it;
       };
-      var enArco = function (u, n) { return puntoArco(den, (n === 1 && !e.den) ? 0.5 : u0 + (u1 - u0) * ((u + 0.5) / n)); };
-      var pie = function (u, n, s) { return base ? base : den ? enArco(u, n) : pos(r, c, s); };
-      if (esPicot(b)) { nuevo('pic', sC, pie(0, 1, sC)).np = b.n; return; }
+      var pie = function (q, s) {   // dónde nace el punto: encima de su punto de la vuelta anterior, dentro del arco o, si es libre, justo debajo
+        if (e.js.length) { var t = tops[e.js[Math.min(q, e.js.length - 1)]]; return t.T.slice(); }
+        if (e.arc) {   // cada conjunto nace de su sitio dentro del arco; sus puntos, casi juntos (como un abanico)
+          var NC = Math.max(1, e.arun ? e.arun.NC : 1), paso = Math.min(0.3, 0.64 / NC), uc = 0.5 + ((e.aci || 0) - (NC - 1) / 2) * paso, nb = Math.max(1, usos(b));
+          return puntoArco(e.arc, uc + (nb > 1 ? (q / (nb - 1) - 0.5) * paso * 0.45 : 0));
+        }
+        return pos(r, c, s);
+      };
+      if (esPicot(b)) { nuevo('pic', sC, e.arc ? puntoArco(e.arc, 0.5) : pos(r, c, sC)).np = b.n; return; }
       if (esDis(b)) {   // disminución: patas separadas abajo que se cierran en un solo punto arriba
-        var Bc = base ? base : den ? puntoArco(den, (u0 + u1) / 2) : pos(r, c, sC), TLc = pos(r1 - 0.08, c1, sC), TLd = pos(r1 - 0.08, c1, sC + 0.01), fc = Math.min(1, PT[tipo].alt / H);
-        var Tc = [Bc[0] + (TLc[0] - Bc[0]) * fc, Bc[1] + (TLc[1] - Bc[1]) * fc], angc = Math.atan2(TLd[1] - TLc[1], TLd[0] - TLc[0]) * 180 / Math.PI;
+        var TLc = pos(r1 - 0.08, c1, sC), TLd = pos(r1 - 0.08, c1, sC + 0.01), fc = Math.min(1, PT[tipo].alt / H), angc = Math.atan2(TLd[1] - TLc[1], TLd[0] - TLc[0]) * 180 / Math.PI;
+        var Bm = e.js.length ? tops[e.js[Math.floor(e.js.length / 2)]].T : e.arc ? puntoArco(e.arc, 0.5) : pos(r, c, sC), Tc = [Bm[0] + (TLc[0] - Bm[0]) * fc, Bm[1] + (TLc[1] - Bm[1]) * fc];
         for (var jd = 0; jd < b.n && k < 3000; jd++) {
-          var sd = sA - (jd + 0.5) / b.n * (sA - sB), itd = nuevo(tipo, sd, pie(jd, b.n, sd));
+          var sd = sA - (jd + 0.5) / b.n * (sA - sB), itd = nuevo(tipo, sd, pie(jd, sd));
           itd.T = Tc; itd.TL = TLc; itd.ang = angc; itd.dis = true; itd.barra = jd === 0;
         }
         return;
@@ -394,14 +515,16 @@ function calcular(vs) {
       for (var u = 0; u < b.n && k < 3000; u++) {
         var ua0 = sA - u / b.n * (sA - sB), ua1 = sA - (u + 1) / b.n * (sA - sB), sU = (ua0 + ua1) / 2;
         for (var qf = 0; qf < kf && k < 3000; qf++) {
-          var s = ua0 - (qf + 0.5) / kf * (ua0 - ua1), it = nuevo(tipo, s, pie(u, b.n, kf > 1 ? sU : s), kf > 1 || (!!base && tipo !== 'ch'));
+          var s = ua0 - (qf + 0.5) / kf * (ua0 - ua1), it = nuevo(tipo, s, tipo === 'ch' ? pos(r, c, s) : pie(u, kf > 1 ? sU : s), tipo !== 'ch' && (kf > 1 || comparte));
           if (arc) { var ua = (u + 0.5) / b.n, p1 = puntoArco(arc, ua - 0.03), p2 = puntoArco(arc, ua + 0.03); it.TL = puntoArco(arc, ua); it.T = it.TL; it.ang = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180 / Math.PI; it.rx = arc.largo / b.n * 0.47; }
         }
       }
     };
     L.forEach(function (e) { if (e.sA != null && k < 3000) poner(e); });
+    var topsR = topsDe(items);
+    arcos.forEach(function (a) { a.k0 = a.its.length ? a.its[0].ti : 0; a.k1 = a.its.length ? a.its[a.its.length - 1].ti : 0; });
     var alza = 0; arcos.forEach(function (a) { alza = Math.max(alza, a.h); });
-    out.push({ r0: r, r1: r1, c1: c1, items: items, paso: (cerr && Wtot > 0) ? Math.min(per / Wtot, ANCHO * 2.5) : ANCHO, ini: ini, arcos: arcos, alza: alza });
+    out.push({ r0: r, r1: r1, c1: c1, items: items, tops: topsR, paso: (cerr && Wtot > 0) ? Math.min(per / Wtot, ANCHO * 2.5) : ANCHO, ini: esNum(v.ini) ? v.ini : 0.5, arcos: arcos, alza: alza, pc: pc, pat: pat });
     r = r1 + alza * 0.7; c = c1;   // la vuelta siguiente se apoya algo más arriba si hay arcos
   });
   return out;
@@ -543,7 +666,7 @@ function dibujar(vs, vista, sel, marca, zona, justo) {
       if (aq) { var it0 = it; it = {}; for (var kk in it0) it[kk] = it0[kk]; it.col = '#ff2e93'; }
       var ez = zona && zona.v === vi && enZona(zona, it.s);
       if (ez) { var it1 = it; it = {}; for (var kz in it1) it[kz] = it1[kz]; it.col = '#0a84ff'; }
-      var ab = '<g class="pt' + (es ? ' selx' : '') + (aq ? ' aqui' : '') + (ez ? ' zona' : '') + '" data-v="' + vi + '" data-b="' + it.b + '" data-k="' + it.k + '" data-s="' + it.s.toFixed(4) + '">' +
+      var ab = '<g class="pt' + (es ? ' selx' : '') + (aq ? ' aqui' : '') + (ez ? ' zona' : '') + '" data-v="' + vi + '" data-b="' + it.b + '" data-k="' + it.k + '" data-ti="' + it.ti + '" data-s="' + it.s.toFixed(4) + '">' +
         '<path d="' + lin(it.B, it.TL) + '" stroke="transparent" stroke-width="13" fill="none"/>';
       if (vista === 'tej') {
         var t = tejido(it, c.paso);
@@ -612,7 +735,7 @@ var SAFRAN = [['Safran 17 · Blanco','#d4d4d6'],
   ['Safran 31 · Verde manzana','#928d46'],
   ['Safran 16 · Negro','#19191b']];
 var LOGO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAAAAAAD/2wBDAAQDAwQDAwQEBAQFBQQFBwsHBwYGBw4KCggLEA4RERAOEA8SFBoWEhMYEw8QFh8XGBsbHR0dERYgIh8cIhocHRz/2wBDAQUFBQcGBw0HBw0cEhASHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBz/wAARCAG/Ab8DASIAAhEBAxEB/8QAHQABAAEFAQEBAAAAAAAAAAAAAAYCBAUHCAMJAf/EAFIQAAEDAgMEBgUIBgcFBgcAAAIAAwQFBgEHEggTIjIRFEJSYnIVIzOCkgkhMUFDU6KyFiRRY3HCFyU0YXOB0iZEVJPBGCc1g6HiRVVkkaOx8v/EABsBAQADAQEBAQAAAAAAAAAAAAACAwQFAQYH/8QALhEBAAICAQMCBgAFBQAAAAAAAAIDBBIBEyIyESMFFCExQlIVM1FiciRBYXHB/9oADAMBAAIRAxEAPwDv5ERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREH5h9GKpxJCPThjio/PuliIW7Ad654foUo1yn4pQrlPxSHBfuHQolHvIScwF1rdt97VqUmYfF9sSAhIS7QqU65V+SVlM6/JcIiKtWIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICL86V+oCKnUmpBUiIgIi8Hy3TZl3RQefW2cHd1vW953dXErjo6cMVqtx9x2U69vCEiLUPFyrY1Imddgsvd4fnV9tHT49Wm7FlVHiTIdCdC8HZDbDZG4WkR7y8olSjTgIo7ouCP06VQz68/defMv1WMmczGw9Zzd1WBVzi4WeFS1VSsjFm1+/MsdFqbUktOPCSv+lRSjLiX2Vr8x+jFfqoIu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';
-var VERSION = '16 nov · 10:00';
+var VERSION = '16 nov · 23:30';
 var NUBE = /^https:\/\/.+/.test(SUPA_URL) && !!SUPA_KEY;
 var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Arena','#d9c2a3'],['Beige','#c9ad8a'],['Gris perla','#cfcfd2'],['Gris','#8e9096'],['Antracita','#3a3c42'],['Negro','#1e1e22'],['Vainilla','#f6e7a6'],
   ['Amarillo','#f5c518'],['Mostaza','#e0a82e'],['Melocotón','#f7c59f'],['Mandarina','#ee8a3c'],['Naranja','#e86a1c'],['Teja','#c5562c'],['Rosa bebé','#f8d3dc'],['Rosa palo','#e9aeb9'],['Rosa','#e8718d'],
@@ -621,7 +744,7 @@ var BASICOS = [['Blanco','#ffffff'],['Crudo','#f4efe6'],['Arena','#d9c2a3'],['Be
   ['Pistacho','#b8cf7a'],['Verde','#4f9e45'],['Salvia','#8a9a6b'],['Oliva','#6f7a35'],['Botella','#2f6b55'],['Camel','#c79a63'],['Caramelo','#b0763a'],['Chocolate','#6b4433'],['Café','#4a2f25']];
 var GAMAS = [{ id: 'safran', nombre: 'DROPS Safran', colores: SAFRAN }, { id: 'basicos', nombre: 'Básicos', colores: BASICOS }];
 var CICLO = ['#c79632', '#c05668', '#e2d8c1', '#538d9c', '#3454a2', '#ce6667'];
-function B(p, n, o) { var b = { p: p, n: n, esq: false, color: null, gid: null, zid: null, arco: false, dentro: false, hebra: null, dis: false, ab: 0, picot: false, va: null, arcoS: null }; for (var k in (o || {})) b[k] = o[k]; return b; }
+function B(p, n, o) { var b = { p: p, n: n, esq: false, color: null, gid: null, zid: null, arco: false, dentro: false, hebra: null, dis: false, ab: 0, picot: false, va: null, arcoS: null, vk: null, arcK: null }; for (var k in (o || {})) b[k] = o[k]; return b; }
 function ejemplo() {
   return [{ forma: 'r', rep: 1, color: CICLO[0], bloques: [B('pa', 16)], puntos: {} },
     { forma: 'r', rep: 16, color: CICLO[1], bloques: [B('pa', 1), B('ch', 1)], puntos: {} },
@@ -638,7 +761,7 @@ var S = (function () {
   return d;
 })();
 var V = { vista: 'inicio', d: null, ro: false, de: '', sucio: false, hoja: null, ocupado: false };
-var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran', eligeIni: false, marc: {}, zact: null, zsel: null, gab: null, vasel: null, asel: null, zver: null, zcam: null, modi: -1 };
+var U = { tab: 'esq', vista: 'sim', v: 0, b: -1, modo: 'vuelta', cb: null, ck: null, gama: 'safran', eligeIni: false, marc: {}, zact: null, zsel: null, gab: null, vasel: null, asel: null, zver: null, zcam: null, modi: -1, rot: 0, girar: false, drag: null, pgr: null };
 var CF = { email: '', pass: '', nombre: '', cod: '', modo: 'entrar', aviso: '' };
 var $ = function (id) { return document.getElementById(id); };
 
@@ -657,15 +780,15 @@ function sanear(vs) {
     v = v || {};
     var pu = {}; if (v.puntos && typeof v.puntos === 'object') Object.keys(v.puntos).slice(0, 3000).forEach(function (k) { if (/^\d+$/.test(k) && okHex(v.puntos[k])) pu[k] = v.puntos[k].toLowerCase(); });
     return { nombre: txt(v.nombre, 40), forma: v.forma === 'c' ? 'c' : 'r', cerrada: v.cerrada !== false, ini: (typeof v.ini === 'number' && isFinite(v.ini)) ? ((v.ini % 4) + 4) % 4 : 0.5, rep: Math.min(200, Math.max(1, v.rep | 0)), color: okHex(v.color) ? v.color.toLowerCase() : CICLO[i % CICLO.length], puntos: pu,
-      zonas: (function () { var z = {}; if (v.zonas && typeof v.zonas === 'object') Object.keys(v.zonas).slice(0, 60).forEach(function (k) { var o = v.zonas[k]; if (/^[a-z0-9]{1,8}$/.test(k) && o && isFinite(o.s0) && isFinite(o.s1) && o.s0 > o.s1 && o.s0 - o.s1 <= 4 && Math.abs(o.s0) < 100) z[k] = { s0: +o.s0, s1: +o.s1 }; }); return z; })(),
-      gopts: (function () { var g = {}; if (v.gopts && typeof v.gopts === 'object') Object.keys(v.gopts).slice(0, 60).forEach(function (k) { var o = v.gopts[k]; if (/^[a-z0-9]{1,8}$/.test(k) && o && typeof o === 'object') g[k] = { va: esNum(o.va) ? ((o.va % 4) + 4) % 4 : null, arco1: !!o.arco1, arcoS: esNum(o.arcoS) ? ((o.arcoS % 4) + 4) % 4 : null }; }); return g; })(),
+      zonas: (function () { var z = {}; if (v.zonas && typeof v.zonas === 'object') Object.keys(v.zonas).slice(0, 60).forEach(function (k) { var o = v.zonas[k]; if (/^[a-z0-9]{1,8}$/.test(k) && o && (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(o.k0) != null && (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(o.k1) != null) { z[k] = { k0: Math.floor(o.k0), k1: Math.floor(o.k1) }; return; } if (/^[a-z0-9]{1,8}$/.test(k) && o && isFinite(o.s0) && isFinite(o.s1) && o.s0 > o.s1 && o.s0 - o.s1 <= 4 && Math.abs(o.s0) < 100) z[k] = { s0: +o.s0, s1: +o.s1 }; }); return z; })(),
+      gopts: (function () { var g = {}; if (v.gopts && typeof v.gopts === 'object') Object.keys(v.gopts).slice(0, 60).forEach(function (k) { var o = v.gopts[k]; if (/^[a-z0-9]{1,8}$/.test(k) && o && typeof o === 'object') g[k] = { vk: (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(o.vk), arcK: (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(o.arcK), patron: !!o.patron, va: esNum(o.va) ? ((o.va % 4) + 4) % 4 : null, arco1: !!o.arco1, arcoS: esNum(o.arcoS) ? ((o.arcoS % 4) + 4) % 4 : null }; }); return g; })(),
       grupos: (function () { var g = {}; if (v.grupos && typeof v.grupos === 'object') Object.keys(v.grupos).slice(0, 60).forEach(function (k) { if (/^[a-z0-9]{1,8}$/.test(k)) g[k] = Math.min(200, Math.max(1, v.grupos[k] | 0)); }); return g; })(),
       bloques: (Array.isArray(v.bloques) ? v.bloques : []).filter(function (b) { return b && typeof b.p === 'string' && PT[b.p]; }).slice(0, 60).map(function (b) {
         var p = b.p, n = Math.min(200, Math.max(1, b.n | 0)), ab = Math.min(12, Math.max(0, b.ab | 0)), hebra = (b.hebra === 'd' || b.hebra === 't') ? b.hebra : null;
         if (b.junto && n > 1 && !ab) { ab = Math.min(12, n); n = 1; }          // formato antiguo: «todos en el mismo punto»
         if (p === 'pbt') { p = 'pb'; hebra = hebra || 't'; }                   // formato antiguo: bajo en hebra de atrás
         if (ab < 2 || p === 'ch') ab = 0;
-        return { va: esNum(b.va) ? ((b.va % 4) + 4) % 4 : null, arcoS: esNum(b.arcoS) ? ((b.arcoS % 4) + 4) % 4 : null, p: p, n: n, hebra: p === 'ch' ? null : hebra, dis: !!b.dis && !ab && DISOK[p] === 1, ab: ab, picot: p === 'ch' && !!b.picot, esq: !!b.esq, color: okHex(b.color) ? b.color.toLowerCase() : null, gid: (typeof b.gid === 'string' && /^[a-z0-9]{1,8}$/.test(b.gid)) ? b.gid : null, arco: p === 'ch' && !!b.arco, dentro: !!b.dentro, zid: (typeof b.zid === 'string' && /^[a-z0-9]{1,8}$/.test(b.zid)) ? b.zid : null }; }) };
+        return { vk: (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(b.vk), arcK: (function (x) { return (typeof x === 'number' && isFinite(x) && x >= 0 && x < 10000) ? Math.floor(x) : null; })(b.arcK), va: esNum(b.va) ? ((b.va % 4) + 4) % 4 : null, arcoS: esNum(b.arcoS) ? ((b.arcoS % 4) + 4) % 4 : null, p: p, n: n, hebra: p === 'ch' ? null : hebra, dis: !!b.dis && !ab && DISOK[p] === 1, ab: ab, picot: p === 'ch' && !!b.picot, esq: !!b.esq, color: okHex(b.color) ? b.color.toLowerCase() : null, gid: (typeof b.gid === 'string' && /^[a-z0-9]{1,8}$/.test(b.gid)) ? b.gid : null, arco: p === 'ch' && !!b.arco, dentro: !!b.dentro, zid: (typeof b.zid === 'string' && /^[a-z0-9]{1,8}$/.test(b.zid)) ? b.zid : null }; }) };
   });
 }
 function disenoLimpio(x) {
@@ -760,7 +883,7 @@ function etiqueta(b) {
   if (b.ab > 1) t = (b.n > 1 ? 'Abanicos' : 'Abanico') + ' de ' + b.ab + ' · ' + t.toLowerCase();
   if (esDis(b)) t += ' · cerrados juntos';
   if (b.p === 'ch' && b.arco && b.n >= 2 && !esPicot(b)) t += ' · arco';
-  if (esNum(b.va)) t += ' · en un punto elegido';
+  if (esNum(b.vk) || esNum(b.va)) t += ' · en un punto elegido';
   if (b.hebra) t += b.hebra === 'd' ? ' · hebra delantera' : ' · hebra trasera';
   if (b.esq) t += ' · esquina';
   return t;
@@ -778,7 +901,35 @@ function moverUnidad(v, u, dir) {
 function unidadDe(v, g) { return unidades(v).filter(function (x) { return x.gid === g; })[0]; }
 function idCorto() { return Math.random().toString(36).slice(2, 7).replace(/[^a-z0-9]/g, 'a') || 'g'; }
 function limpiarZonas(v) { var uso = {}; v.bloques.forEach(function (b) { if (b.zid) uso[b.zid] = 1; }); v.zonas = v.zonas || {}; Object.keys(v.zonas).forEach(function (z) { if (!uso[z] && z !== U.zact) delete v.zonas[z]; }); v.bloques.forEach(function (b) { if (b.zid && !v.zonas[b.zid]) b.zid = null; }); }
-function puntosEnZona(z) { var c = calcular(VS())[U.v - 1]; return c ? c.items.filter(function (it) { return enZona(z, it.s); }).length : 0; }
+function topsAnt() { var c = calcular(VS())[U.v - 1]; return c ? c.tops : []; }
+function zonaK(z) {   // los puntos elegidos, como índices de la vuelta anterior
+  var t = topsAnt(), N = t.length; if (!N || !z) return null;
+  if (esNum(z.k0) && esNum(z.k1)) return { k0: mod(z.k0, N), n: Math.min(N, mod(z.k1 - z.k0, N) + 1) };
+  var den = []; t.forEach(function (x, i) { if (enZona(z, x.s)) den.push(i); }); if (!den.length) return null;
+  var k0 = den.filter(function (i) { return den.indexOf(mod(i - 1, N)) < 0; })[0]; return { k0: k0 == null ? den[0] : k0, n: den.length };
+}
+function puntosEnZona(z) { var k = zonaK(z); return k ? k.n : 0; }
+function anclado(b) { return esNum(b.vk) || esNum(b.va) || !!b.zid || !!b.dentro; }
+function zidUnidad(v, u) { var z = v.bloques[u.i0].zid || null; for (var q = u.i0 + 1; q < u.i1; q++) if ((v.bloques[q].zid || null) !== z) return null; return z; }
+function hacerGrupo(ids, patron) {
+  var v = vu(), g = idCorto();
+  ids.forEach(function (i) { if (v.bloques[i]) v.bloques[i].gid = g; });
+  v.grupos = v.grupos || {}; v.grupos[g] = 1; v.gopts = v.gopts || {}; v.gopts[g] = { va: null, vk: null, arcK: null, arco1: false, arcoS: null, patron: !!patron };
+  limpiarGrupos(v); U.marc = {}; U.b = -1; U.gab = null; estructura(); render();
+  if (patron) toast('Patrón creado. Súbele las repeticiones con el +');
+}
+// Antes de repetir un grupo, comprueba que la vuelta anterior se repite igual; si no, explica por qué
+function probarVeces(g, n) {
+  var v = vu(), ant = (v.grupos && v.grupos[g]) || 1; v.grupos[g] = n;
+  var c = calcular(VS())[U.v], p = c && c.pat && c.pat[g];
+  if (n > ant && p && !p.ok) {
+    v.grupos[g] = ant;
+    hoja('No se puede repetir ' + n + ' veces', '<p>' + esc(p.msg) + '</p><p class="nota">Para repetir un patrón, debajo de cada repetición tiene que haber la misma secuencia de puntos que debajo de la primera. Revisa la vuelta anterior, o marca a mano con «Punto V.A.» dónde va cada parte.</p><button class="grande" data-act="cerrar">Entendido</button>');
+    render(); return false;
+  }
+  V.sucio = true; return true;
+}
+
 function limpiarGrupos(v) { v.gopts = v.gopts || {}; Object.keys(v.gopts).forEach(function (g) { if (!v.bloques.some(function (b) { return b.gid === g; })) delete v.gopts[g]; }); var uso = {}; v.bloques.forEach(function (b) { if (b.gid) uso[b.gid] = 1; }); v.grupos = v.grupos || {}; Object.keys(v.grupos).forEach(function (g) { if (!uso[g]) delete v.grupos[g]; }); v.bloques.forEach(function (b) { if (b.gid && !v.grupos[b.gid]) v.grupos[b.gid] = 1; }); }
 function resumen(v) {
   if (!v.bloques.length) return 'Todavía sin puntos';
@@ -801,27 +952,42 @@ function selDibujo() {
   return { v: U.v, b: U.modo === 'conjunto' ? U.cb : (U.modo === 'punto' && U.ck != null ? U.cb : null), k: U.modo === 'punto' ? U.ck : null };
 }
 // El punto «por donde vas»: el último puesto en esta vuelta o, si está vacía, el de la vuelta anterior donde empieza
-function aqui() {
+function aqui() {   // el punto «por donde vas»: el siguiente punto de la vuelta anterior en el que toca tejer
   if (V.ro || U.tab !== 'esq' || !VS().length) return null;
   var cal = calcular(VS()), c = cal[U.v]; if (!c) return null;
-  if (c.items.length) return { v: U.v, k: c.items[c.items.length - 1].k };
-  var p = cal[U.v - 1]; if (!p || !p.items.length) return null;
-  var mejor = null, md = 9; p.items.forEach(function (it) { var d = Math.abs(((((it.s - c.ini + 2) % 4) + 4) % 4) - 2); if (d < md) { md = d; mejor = it; } });
-  return { v: U.v - 1, k: mejor.k };
+  var p = cal[U.v - 1];
+  if (!p || !p.tops.length) return c.items.length ? { v: U.v, k: c.items[c.items.length - 1].k } : null;
+  var N = p.tops.length, j = null;
+  if (c.items.length && c.pc != null) j = mod(c.pc + 1, N);
+  else if (c.items.length) { var sl = c.items[c.items.length - 1].s, md = 9; p.tops.forEach(function (t, i) { var d = mod(sl - t.s, 4); if (d > 0.002 && d < md) { md = d; j = i; } }); }
+  else { var md2 = 9; p.tops.forEach(function (t, i) { var d = distCirc(t.s, c.ini); if (d < md2) { md2 = d; j = i; } }); }
+  return j == null ? null : { v: U.v - 1, k: p.tops[j].k };
 }
+
 function zonaVisible() {
   if (V.ro || U.tab !== 'esq' || !VS().length) return null;
   if (U.zsel && U.zsel.fase === 2) return { v: U.v - 1, s0: U.zsel.s + 0.004, s1: U.zsel.s - 0.004 };   // el primer punto ya tocado
   var v = vu(); if (!v) return null;
-  var zid = U.zcam || U.zver || U.zact, z = zid && v.zonas && v.zonas[zid]; if (z) return { v: U.v - 1, s0: z.s0, s1: z.s1 };
-  var b = v.bloques[U.b], va = b && esNum(b.va) ? b.va : (U.gab && v.gopts && v.gopts[U.gab] && esNum(v.gopts[U.gab].va) ? v.gopts[U.gab].va : null);   // el punto V.A. del conjunto o grupo abierto
-  return va != null ? { v: U.v - 1, s0: va + 0.004, s1: va - 0.004 } : null;
+  var t = topsAnt(), N = t.length; if (!N) return null;
+  var rango = function (k0, n) { var a = t[k0].s, b = t[mod(k0 + n - 1, N)].s; if (k0 + n - 1 >= N) b -= 4; return { v: U.v - 1, s0: a + 0.003, s1: b - 0.003 }; };
+  var zid = U.zcam || U.zver || U.zact, zk = zid && v.zonas && zonaK(v.zonas[zid]); if (zk) return rango(zk.k0, zk.n);
+  var b = v.bloques[U.b], go = U.gab && v.gopts && v.gopts[U.gab];   // el punto V.A. del conjunto o grupo abierto
+  var k = b && esNum(b.vk) ? b.vk : go && esNum(go.vk) ? go.vk : null;
+  if (k != null) return rango(mod(k, N), 1);
+  var sa = b && esNum(b.va) ? b.va : go && esNum(go.va) ? go.va : null;
+  return sa != null ? { v: U.v - 1, s0: sa + 0.004, s1: sa - 0.004 } : null;
+}
+
+function aplicarGiro() {
+  var sv = document.querySelector('#lienzo svg'), l = $('lienzo'); if (!sv || !l) return;
+  var r = U.rot * Math.PI / 180, k = 1 / (Math.abs(Math.cos(r)) + Math.abs(Math.sin(r)));
+  sv.style.transform = U.rot ? 'rotate(' + U.rot + 'deg) scale(' + k.toFixed(3) + ')' : '';
+  l.classList.toggle('girando', !!U.girar);
 }
 function limpiarSel() { U.eligeIni = false; U.zsel = null; U.vasel = null; U.asel = null; }
-function moverZona(zid, sentido) {   // mueve los puntos elegidos un punto hacia un lado
-  var v = vu(), z = v && v.zonas && v.zonas[zid]; if (!z) return;
-  var n = Math.max(1, puntosEnZona(z)), paso = (z.s0 - z.s1) / n * sentido;
-  z.s0 += paso; z.s1 += paso; estructura(); render();
+function moverZona(zid, sentido) {   // mueve los puntos elegidos un punto: ◀ hacia donde se teje, ▶ hacia atrás
+  var v = vu(), z = v && v.zonas && v.zonas[zid], zk = zonaK(z), N = topsAnt().length; if (!zk || !N) return;
+  var k0 = mod(zk.k0 - sentido, N); v.zonas[zid] = { k0: k0, k1: mod(k0 + zk.n - 1, N) }; estructura(); render();
 }
 // Guardar el granny como imagen (en el iPhone abre el menú de compartir, con «Guardar imagen»)
 async function exportarFoto() {
@@ -886,14 +1052,14 @@ function panelEsquema() {
       s += '<div class="mini"><button data-act="subir" data-i="' + i + '"' + (i === 0 ? ' disabled' : '') + '>↑ Antes</button><button data-act="bajar" data-i="' + i + '"' + (i === v.bloques.length - 1 ? ' disabled' : '') + '>↓ Después</button>' +
         '<button data-act="dup" data-i="' + i + '">Duplicar</button><button data-act="quitarb" data-i="' + i + '">Quitar</button></div>' +
         '<div class="mini"><button data-act="modificar" data-i="' + i + '">Modificar (cambiar de punto)</button>' +
-        (U.v > 0 && !b.zid ? (esNum(b.va) ? '<button data-act="vaquitar" data-i="' + i + '">Quitar punto V.A.</button>' : '<button data-act="vaelegir" data-i="' + i + '">Punto V.A.</button>') : '') + '</div></div>';
+        (U.v > 0 && !b.zid ? ((esNum(b.vk) || esNum(b.va)) ? '<button data-act="vaquitar" data-i="' + i + '">Quitar punto V.A.</button>' : '<button data-act="vaelegir" data-i="' + i + '">Punto V.A.</button>') : '') + '</div></div>';
     }
     return s + '</div>';
   };
   // Un grupo se maneja como un punto: cuántas veces, mover, duplicar, quitar y opciones para todos sus puntos
   var cajaGrupo = function (u) {
-    var gg = u.gid, bs = v.bloques.slice(u.i0, u.i1), ab = U.gab === gg, todos = function (f) { return bs.every(f); };
-    var s = '<div class="grupo"><div class="gcab"><b>Grupo</b><button class="paso" data-act="gmenos" data-g="' + gg + '" aria-label="Una vez menos">−</button>' +
+    var gg = u.gid, go0 = (v.gopts && v.gopts[gg]) || {}, bs = v.bloques.slice(u.i0, u.i1), ab = U.gab === gg, todos = function (f) { return bs.every(f); };
+    var s = '<div class="grupo' + (go0.patron ? ' patron' : '') + '"><div class="gcab"><b>' + (go0.patron ? 'Patrón' : 'Grupo') + '</b><button class="paso" data-act="gmenos" data-g="' + gg + '" aria-label="Una vez menos">−</button>' +
       '<input class="num" type="number" inputmode="numeric" min="1" max="200" value="' + ((v.grupos && v.grupos[gg]) || 1) + '" data-campo="grep" data-g="' + gg + '" aria-label="Veces que se hace el grupo">' +
       '<button class="paso" data-act="gmas" data-g="' + gg + '" aria-label="Una vez más">+</button><span>' + (((v.grupos && v.grupos[gg]) || 1) === 1 ? 'vez' : 'veces') + '</span>' +
       '<button class="lnk" data-act="gopciones" data-g="' + gg + '" aria-expanded="' + ab + '">' + (ab ? 'Cerrar opciones' : 'Opciones') + '</button></div>';
@@ -904,7 +1070,7 @@ function panelEsquema() {
       var go = (v.gopts && v.gopts[gg]) || {};
       if (hayArcos) s += '<label class="marca"><input type="checkbox" data-campo="gdentro" data-g="' + gg + '"' + (go.arco1 ? ' checked' : '') + '>Todo el grupo va dentro de un mismo arco de la vuelta anterior</label>' +
         (go.arco1 ? '<button class="lnk" data-act="aelegir" data-g="' + gg + '">¿No es ese arco? Señalarlo en el dibujo</button>' : '');
-      if (U.v > 0 && !bs[0].zid) s += '<div class="mini">' + (esNum(go.va) ? '<button data-act="gvaquitar" data-g="' + gg + '">Quitar el punto del grupo</button>' : '<button data-act="gvaelegir" data-g="' + gg + '">Tejer todo el grupo en un punto del dibujo</button>') + '</div>';
+      if (U.v > 0 && !bs[0].zid) s += '<div class="mini">' + ((esNum(go.vk) || esNum(go.va)) ? '<button data-act="gvaquitar" data-g="' + gg + '">Quitar el punto del grupo</button>' : '<button data-act="gvaelegir" data-g="' + gg + '">Tejer todo el grupo en un punto del dibujo</button>') + '</div>';
       s += '<div class="mini"><button data-act="gsubir" data-g="' + gg + '">↑ Antes</button><button data-act="gbajar" data-g="' + gg + '">↓ Después</button><button data-act="gdup" data-g="' + gg + '">Duplicar</button><button data-act="gquitar" data-g="' + gg + '">Quitar</button></div>' +
         '<div class="enl" style="margin-top:8px"><button data-act="desagrupar" data-g="' + gg + '">Desagrupar (dejar los puntos sueltos)</button></div></div>';
     }
@@ -913,7 +1079,7 @@ function panelEsquema() {
   };
   var us = unidades(v), zAb = null;
   us.forEach(function (u, ui) {
-    var zz = v.bloques[u.i0].zid; if (!(zz && v.zonas && v.zonas[zz])) zz = null;
+    var zz = zidUnidad(v, u); if (!(zz && v.zonas && v.zonas[zz])) zz = null;
     if (zz !== zAb) {
       if (zAb) h += '</div>';
       if (zz) h += '<div class="grupo azul"><div class="gcab"><b>Sobre ' + puntosEnZona(v.zonas[zz]) + ' puntos</b><span>de la vuelta anterior</span></div><div class="mini zbot">' +
@@ -923,7 +1089,7 @@ function panelEsquema() {
       zAb = zz;
     }
     h += u.gid ? cajaGrupo(u) : fila(v.bloques[u.i0], u.i0);
-    var sigZ = us[ui + 1] ? v.bloques[us[ui + 1].i0].zid : null;
+    var sigZ = us[ui + 1] ? zidUnidad(v, us[ui + 1]) : null;
     if (zAb && sigZ !== zAb) { if (U.zact === zAb) h += '<div class="barsel azul"><span>Lo que añadas irá aquí.</span><button data-act="zterminar">Terminar</button></div>'; h += '</div>'; zAb = null; }
   });
   var nm = Object.keys(U.marc).length;
@@ -990,8 +1156,11 @@ function avisoSel() {
   return t ? '<p class="aviso sel">' + t + ' <button class="lnk" data-act="cancelsel">Cancelar</button></p>' : '';
 }
 function visor() {
-  return '<div class="visor"><div id="lienzo">' + dibujar(VS(), U.vista, selDibujo(), aqui(), zonaVisible()) + '</div>' + avisoSel() + '<div class="seg" role="group" aria-label="Vista"><button data-act="vista" data-t="sim" aria-pressed="' + (U.vista === 'sim') + '">Símbolos</button>' +
-    '<button data-act="vista" data-t="tej" aria-pressed="' + (U.vista === 'tej') + '">Tejido</button></div></div>';
+  return '<div class="visor"><div id="lienzo">' + dibujar(VS(), U.vista, selDibujo(), aqui(), zonaVisible()) + '</div>' + avisoSel() + '<div class="vfila"><button class="giro" data-act="girar" data-t="-15" aria-label="Girar el dibujo a la izquierda">⟲</button>' +
+    '<div class="seg" role="group" aria-label="Vista"><button data-act="vista" data-t="sim" aria-pressed="' + (U.vista === 'sim') + '">Símbolos</button>' +
+    '<button data-act="vista" data-t="tej" aria-pressed="' + (U.vista === 'tej') + '">Tejido</button></div>' +
+    '<button class="giro" data-act="girar" data-t="15" aria-label="Girar el dibujo a la derecha">⟳</button></div>' +
+    '<div class="vfila peq"><button class="lnk" data-act="girodedo" aria-pressed="' + !!U.girar + '">' + (U.girar ? 'Listo, dejar de girar' : 'Girar con el dedo') + '</button>' + (U.rot ? '<button class="lnk" data-act="enderezar">Ponerlo recto</button>' : '') + '</div></div>';
 }
 function vistaDiseno() {
   var d = V.d;
@@ -1055,6 +1224,7 @@ function render() {
   if (NUBE && !S.ses) { $('app').innerHTML = vistaBienvenida(); $('nav').hidden = true; return; }
   var h = V.vista === 'diseno' ? vistaDiseno() : V.vista === 'amigas' ? vistaAmigas() : V.vista === 'perfil' ? vistaPerfil() : vistaInicio();
   $('app').innerHTML = h;
+  aplicarGiro();
   $('nav').hidden = V.vista === 'diseno';
   [['nb', 'inicio'], ['na', 'amigas'], ['np', 'perfil']].forEach(function (x) { $(x[0]).setAttribute('aria-current', V.vista === x[1] ? 'page' : 'false'); });
   var n = S.ses ? S.cache.amistades.filter(function (a) { return a.estado === 'pendiente' && a.para === yo(); }).length : 0;
@@ -1118,9 +1288,15 @@ var ACT = {
     if (!ids.length) return;
     for (var i = 1; i < ids.length; i++) if (ids[i] !== ids[i - 1] + 1) { toast('Para agruparlos tienen que estar seguidos, uno detrás de otro'); return; }
     var g = Math.random().toString(36).slice(2, 7).replace(/[^a-z0-9]/g, 'a') || 'g';
-    if (ids.some(function (i) { return (v.bloques[i].zid || null) !== (v.bloques[ids[0]].zid || null); })) { toast('No se pueden agrupar conjuntos de dentro y de fuera de los puntos elegidos'); return; }
-    ids.forEach(function (i) { v.bloques[i].gid = g; }); v.grupos = v.grupos || {}; v.grupos[g] = 1; limpiarGrupos(v); U.marc = {}; U.b = -1; estructura(); render();
+    if (U.v > 0 && ids.some(function (i) { return anclado(v.bloques[i]); })) {
+      U.pgr = ids;
+      hoja('¿Crear un patrón de repetición?', '<p>Algunos de estos puntos van sobre puntos concretos de la vuelta anterior.</p><p>Si creas un patrón, cada vez que lo repitas se tejerá sobre los siguientes puntos iguales de la vuelta anterior. Si la vuelta anterior no se repite igual, la app te avisará de por qué no se puede.</p>' +
+        '<button class="grande" data-act="agruparok" data-pat="1">Crear patrón</button><button class="grande sec" data-act="cerrar">Cancelar</button>');
+      return;
+    }
+    hacerGrupo(ids, false);
   },
+  agruparok: function (d) { var ids = U.pgr; U.pgr = null; cerrar(); if (ids) hacerGrupo(ids, !!d.pat); },
   zelegir: function () { limpiarSel(); U.zsel = { fase: 1 }; render(); },
   zmano: function (d) { limpiarSel(); U.zsel = { fase: 1, zid: d.z }; render(); },
   zmostrar: function (d) { U.zver = U.zver === d.z ? null : d.z; render(); },
@@ -1138,11 +1314,14 @@ var ACT = {
     estructura(); render();
   },
   vaelegir: function (d) { limpiarSel(); U.vasel = { i: +d.i }; render(); },
-  vaquitar: function (d) { vu().bloques[+d.i].va = null; estructura(); render(); },
+  vaquitar: function (d) { var b = vu().bloques[+d.i]; b.va = null; b.vk = null; estructura(); render(); },
   gvaelegir: function (d) { limpiarSel(); U.vasel = { g: d.g }; render(); },
-  gvaquitar: function (d) { var v = vu(); if (v.gopts && v.gopts[d.g]) v.gopts[d.g].va = null; estructura(); render(); },
+  gvaquitar: function (d) { var v = vu(); if (v.gopts && v.gopts[d.g]) { v.gopts[d.g].va = null; v.gopts[d.g].vk = null; } estructura(); render(); },
   aelegir: function (d) { limpiarSel(); U.asel = d.g ? { g: d.g } : { i: +d.i }; render(); },
   exportarfoto: function () { return exportarFoto(); },
+  girar: function (d) { U.rot = ((U.rot + (+d.t || 0)) % 360 + 360) % 360; if (U.rot > 180) U.rot -= 360; render(); },
+  girodedo: function () { U.girar = !U.girar; render(); },
+  enderezar: function () { U.rot = 0; render(); },
   zcancelar: function () { U.zsel = null; render(); },
   zterminar: function () { U.zact = null; limpiarZonas(vu()); render(); },
   zseguir: function (d) { if (vu().zonas[d.z]) { U.zact = d.z; render(); } },
@@ -1154,14 +1333,14 @@ var ACT = {
   gdup: function (d) {
     var v = vu(), u = unidadDe(v, d.g); if (!u) return; if (v.bloques.length + (u.i1 - u.i0) > 60) { toast('Como mucho 60 conjuntos por vuelta'); return; }
     var g2 = idCorto(), copia = v.bloques.slice(u.i0, u.i1).map(function (b) { var c = {}; for (var k in b) c[k] = b[k]; c.gid = g2; c.esq = false; return c; });
-    Array.prototype.splice.apply(v.bloques, [u.i1, 0].concat(copia)); v.grupos[g2] = v.grupos[d.g] || 1; v.gopts = v.gopts || {}; if (v.gopts[d.g]) v.gopts[g2] = { va: null, arco1: !!v.gopts[d.g].arco1, arcoS: null }; U.gab = g2; U.b = -1; U.marc = {}; estructura(); render();
+    Array.prototype.splice.apply(v.bloques, [u.i1, 0].concat(copia)); v.grupos[g2] = v.grupos[d.g] || 1; v.gopts = v.gopts || {}; if (v.gopts[d.g]) v.gopts[g2] = { va: null, vk: null, arcK: null, patron: !!v.gopts[d.g].patron, arco1: !!v.gopts[d.g].arco1, arcoS: null }; U.gab = g2; U.b = -1; U.marc = {}; estructura(); render();
   },
   gquitar: function (d) { var v = vu(); v.bloques = v.bloques.filter(function (b) { return b.gid !== d.g; }); U.gab = null; U.b = -1; U.marc = {}; limpiarGrupos(v); limpiarZonas(v); estructura(); render(); },
   hebra: function (d) { var b = vu().bloques[+d.i]; if (b && b.p !== 'ch') { b.hebra = (d.t === 'd' || d.t === 't') ? d.t : null; V.sucio = true; render(); } },
   abmas: function (d) { var b = vu().bloques[+d.i]; b.ab = Math.min(12, (b.ab | 0) + 1); estructura(); render(); },
   abmenos: function (d) { var b = vu().bloques[+d.i]; b.ab = Math.max(2, (b.ab | 0) - 1); estructura(); render(); },
   desagrupar: function (d) { var v = vu(); v.bloques.forEach(function (b) { if (b.gid === d.g) b.gid = null; }); limpiarGrupos(v); estructura(); render(); },
-  gmas: function (d) { var v = vu(); v.grupos[d.g] = Math.min(200, ((v.grupos[d.g] | 0) || 1) + 1); estructura(); render(); },
+  gmas: function (d) { var v = vu(); if (probarVeces(d.g, Math.min(200, ((v.grupos[d.g] | 0) || 1) + 1))) { estructura(); render(); } },
   gmenos: function (d) { var v = vu(); v.grupos[d.g] = Math.max(1, ((v.grupos[d.g] | 0) || 1) - 1); estructura(); render(); },
   selb: function (d) { U.b = U.b === +d.i ? -1 : +d.i; render(); },
   mas: function (d) { var b = vu().bloques[+d.i]; b.n = Math.min(200, b.n + 1); estructura(); render(); },
@@ -1285,30 +1464,33 @@ async function sesionDeEnlace() {
 
 document.addEventListener('click', function (e) {
   if (e.target.id === 'velo') { cerrar(); return; }
+  if (U.girar && e.target.closest && e.target.closest('#lienzo')) return;   // girando: los toques en el dibujo no seleccionan nada
   var p = e.target.closest && e.target.closest('#lienzo .pt');
   if (p && V.vista === 'diseno' && !V.ro) {
     if ((U.vasel || U.asel) && U.tab === 'esq') {
-      var sx = parseFloat(p.dataset.s), vx = vu();
-      if (+p.dataset.v !== U.v - 1 || !isFinite(sx)) { toast('Toca un punto de la vuelta ' + U.v + ', la anterior a esta'); return; }
+      var sx = parseFloat(p.dataset.s), tx = parseInt(p.dataset.ti, 10), vx = vu();
+      if (+p.dataset.v !== U.v - 1 || !isFinite(sx) || !(tx >= 0)) { toast('Toca un punto de la vuelta ' + U.v + ', la anterior a esta'); return; }
       vx.gopts = vx.gopts || {};
       if (U.vasel) {
-        if (U.vasel.g) { vx.gopts[U.vasel.g] = vx.gopts[U.vasel.g] || { va: null, arco1: false, arcoS: null }; vx.gopts[U.vasel.g].va = ((sx % 4) + 4) % 4; }
-        else if (vx.bloques[U.vasel.i]) vx.bloques[U.vasel.i].va = ((sx % 4) + 4) % 4;
+        if (U.vasel.g) { vx.gopts[U.vasel.g] = vx.gopts[U.vasel.g] || { va: null, arco1: false, arcoS: null }; vx.gopts[U.vasel.g].vk = tx; vx.gopts[U.vasel.g].va = null; }
+        else if (vx.bloques[U.vasel.i]) { vx.bloques[U.vasel.i].vk = tx; vx.bloques[U.vasel.i].va = null; }
       } else {
-        var arcs = calcular(VS())[U.v - 1].arcos, mejor = null, md = 9; arcs.forEach(function (ar) { var dd = distCirc((ar.s0 + ar.s1) / 2, sx); if (dd < md) { md = dd; mejor = ar; } });
-        if (!mejor) { toast('Esa vuelta no tiene arcos'); return; }
-        var sm = ((((mejor.s0 + mejor.s1) / 2) % 4) + 4) % 4;
-        if (U.asel.g) { vx.gopts[U.asel.g] = vx.gopts[U.asel.g] || { va: null, arco1: true, arcoS: null }; vx.gopts[U.asel.g].arcoS = sm; } else if (vx.bloques[U.asel.i]) vx.bloques[U.asel.i].arcoS = sm;
+        var arcs = calcular(VS())[U.v - 1].arcos, kx = +p.dataset.k, ia = -1;
+        arcs.forEach(function (ar, i) { if (ia < 0 && ar.its.some(function (it) { return it.k === kx; })) ia = i; });
+        if (ia < 0) { var md = 9; arcs.forEach(function (ar, i) { var dd = distCirc((ar.s0 + ar.s1) / 2, sx); if (dd < md) { md = dd; ia = i; } }); }
+        if (ia < 0) { toast('Esa vuelta no tiene arcos'); return; }
+        if (U.asel.g) { vx.gopts[U.asel.g] = vx.gopts[U.asel.g] || { va: null, arco1: true, arcoS: null }; vx.gopts[U.asel.g].arcK = ia; vx.gopts[U.asel.g].arcoS = null; }
+        else if (vx.bloques[U.asel.i]) { vx.bloques[U.asel.i].arcK = ia; vx.bloques[U.asel.i].arcoS = null; }
       }
       limpiarSel(); estructura(); render(); return;
     }
     if (U.zsel && U.tab === 'esq') {
       var sz = parseFloat(p.dataset.s);
       if (+p.dataset.v !== U.v - 1 || !isFinite(sz)) { toast('Toca un punto de la vuelta ' + U.v + ', la anterior a esta'); return; }
-      if (U.zsel.fase === 1) { U.zsel = { fase: 2, s: sz, zid: U.zsel.zid }; render(); return; }
-      var sA = U.zsel.s, sB = sz, del = (((sA - sB) % 4) + 4) % 4; if (del > 2) { var tmp = sA; sA = sB; sB = tmp; del = 4 - del; }
-      var nIt = calcular(VS())[U.v - 1].items.filter(function (it) { return enZona({ s0: sA + 1e-4, s1: sA - del - 1e-4 }, it.s); }).length, mg = nIt > 1 ? del / (nIt - 1) / 2 : 0.07;
-      var zid = U.zsel.zid || idCorto(), vz = vu(); vz.zonas = vz.zonas || {}; vz.zonas[zid] = { s0: sA + mg, s1: sA - del - mg };
+      var tz = parseInt(p.dataset.ti, 10); if (!(tz >= 0)) return;
+      if (U.zsel.fase === 1) { U.zsel = { fase: 2, s: sz, t: tz, zid: U.zsel.zid }; render(); return; }
+      var Nz = calcular(VS())[U.v - 1].tops.length, ka = U.zsel.t, dz = mod(tz - ka, Nz); if (dz > Nz / 2) { ka = tz; dz = Nz - dz; }   // en orden de tejido
+      var zid = U.zsel.zid || idCorto(), vz = vu(); vz.zonas = vz.zonas || {}; vz.zonas[zid] = { k0: ka, k1: mod(ka + dz, Nz) };
       if (!U.zsel.zid) U.zact = zid; U.zsel = null; estructura(); render(); return;
     }
     if (U.eligeIni && U.tab === 'esq') { var si = parseFloat(p.dataset.s); if (isFinite(si)) { vu().ini = ((si % 4) + 4) % 4; V.sucio = true; } U.eligeIni = false; render(); return; }
@@ -1319,6 +1501,20 @@ document.addEventListener('click', function (e) {
   var b = e.target.closest && e.target.closest('[data-act]');
   if (b && !b.disabled && ACT[b.dataset.act]) ACT[b.dataset.act](b.dataset);
 });
+document.addEventListener('pointerdown', function (e) {
+  if (!U.girar || V.vista !== 'diseno') return;
+  var l = e.target.closest && e.target.closest('#lienzo'); if (!l) return;
+  var r = l.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  U.drag = { cx: cx, cy: cy, a0: Math.atan2(e.clientY - cy, e.clientX - cx), rot0: U.rot };
+  try { l.setPointerCapture(e.pointerId); } catch (x) {}
+  e.preventDefault();
+});
+document.addEventListener('pointermove', function (e) {
+  if (!U.drag) return;
+  U.rot = U.drag.rot0 + (Math.atan2(e.clientY - U.drag.cy, e.clientX - U.drag.cx) - U.drag.a0) * 180 / Math.PI;
+  U.rot = ((U.rot % 360) + 540) % 360 - 180; aplicarGiro();
+});
+['pointerup', 'pointercancel'].forEach(function (t) { document.addEventListener(t, function () { if (U.drag) { U.drag = null; U.rot = Math.round(U.rot); render(); } }); });
 document.addEventListener('input', function (e) {
   var c = e.target.dataset && e.target.dataset.campo;
   if (c === 'nombre' && V.d) { V.d.nombre = e.target.value; V.sucio = true; }
@@ -1335,13 +1531,13 @@ document.addEventListener('change', function (e) {
   else if (c === 'arco') { var bk = v.bloques[+e.target.dataset.i]; bk.arco = e.target.checked; if (bk.arco) bk.picot = false; V.sucio = true; }
   else if (c === 'dentro') { v.bloques[+e.target.dataset.i].dentro = e.target.checked; V.sucio = true; }
   else if (c === 'marc') { if (e.target.checked) U.marc[+e.target.dataset.i] = 1; else delete U.marc[+e.target.dataset.i]; }
-  else if (c === 'grep') { v.grupos = v.grupos || {}; v.grupos[e.target.dataset.g] = Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)); estructura(); }
+  else if (c === 'grep') { v.grupos = v.grupos || {}; if (probarVeces(e.target.dataset.g, Math.min(200, Math.max(1, parseInt(e.target.value, 10) || 1)))) estructura(); }
   else if (c === 'cerrada') { v.cerrada = e.target.checked; V.sucio = true; }
   else if (c === 'abanico') { var ba = v.bloques[+e.target.dataset.i]; if (e.target.checked) { if (ba.n >= 2) { ba.ab = Math.min(12, ba.n); ba.n = 1; } else ba.ab = 5; ba.dis = false; } else ba.ab = 0; estructura(); }
   else if (c === 'ab') { v.bloques[+e.target.dataset.i].ab = Math.min(12, Math.max(2, parseInt(e.target.value, 10) || 2)); estructura(); }
   else if (c === 'dis') { v.bloques[+e.target.dataset.i].dis = e.target.checked; V.sucio = true; }
   else if (c === 'picot') { var bp = v.bloques[+e.target.dataset.i]; bp.picot = e.target.checked; if (bp.picot) bp.arco = false; estructura(); }
-  else if (c === 'gdentro') { var gd = e.target.dataset.g; v.bloques.forEach(function (b) { if (b.gid === gd) b.dentro = e.target.checked; }); v.gopts = v.gopts || {}; v.gopts[gd] = v.gopts[gd] || { va: null, arco1: false, arcoS: null }; v.gopts[gd].arco1 = e.target.checked; if (!e.target.checked) v.gopts[gd].arcoS = null; V.sucio = true; }
+  else if (c === 'gdentro') { var gd = e.target.dataset.g; v.bloques.forEach(function (b) { if (b.gid === gd) b.dentro = e.target.checked; }); v.gopts = v.gopts || {}; v.gopts[gd] = v.gopts[gd] || { va: null, arco1: false, arcoS: null }; v.gopts[gd].arco1 = e.target.checked; if (!e.target.checked) { v.gopts[gd].arcoS = null; v.gopts[gd].arcK = null; } V.sucio = true; }
   else if (c === 'esq') { v.bloques.forEach(function (b, i) { b.esq = i === +e.target.dataset.i ? e.target.checked : false; }); V.sucio = true; }
   else if (c === 'pick') ponerColor(e.target.value);
   else return;
